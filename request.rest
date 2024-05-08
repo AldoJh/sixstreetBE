@@ -1,0 +1,13 @@
+GET http://localhost:3000/user
+###
+POST http://localhost:3000/user
+Content-Type: application/json
+
+{
+    "username": "John mir",
+    "password": "password123", 
+    "email": "aldo123@gmail.com",
+    "address": "1234 Main St, New York, NY 10001",
+    "no_hp": "1234567890124",
+    "referd_kode": "1234"
+}
