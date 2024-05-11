@@ -2,6 +2,9 @@ import Express  from "express";
 import db from "./config/database.js";
 // import User from "./model/userModel.js";
 import router from "./routes/index.js";
+import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
+dotenv.config();
 const app = Express();
 
 try{
@@ -12,6 +15,7 @@ try{
     console.error("Unable to connect to the database:", error);
 }
 
+app.use(cookieParser());
 app.use(Express.json());
 app.use(router);
 

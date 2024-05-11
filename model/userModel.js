@@ -37,6 +37,9 @@ const User = db.define('User', {
     refreshToken: {
         type: DataTypes.TEXT,
     },
+    OTP: {
+        type: DataTypes.STRING,
+    },
 },{
     freezeTableName: true,
 });

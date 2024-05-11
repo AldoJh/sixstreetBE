@@ -1,9 +1,13 @@
 import User from "../model/userModel.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+
 
 export const getAllUsers = async (req, res) => {
     try {
-        const users = await User.findAll();
+        const users = await User.findAll({
+            attributes : ['username', 'no_hp', 'email', 'address', 'referd_kode', 'role', 'membership', 'kode_user'],
+        });
         res.json(users);
     } catch (error) {
         res.json({ message: error });
@@ -49,7 +53,44 @@ export const createUser = async (req, res) => {
     } catch (error) {
         // Tangani kesalahan
         console.error('Error creating user:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ message: 'Register Unsuccessfully' });
     }
     
-}
+};
+
+
+export const login = async (req, res) => {
+    try{
+        const user = await User.findAll({ 
+            where: {
+                email: req.body.email,
+            },
+        });
+        const match = await bcrypt.compare(req.body.password, user[0].password);
+        if (match){
+            const accessToken = jwt.sign({email: user[0].email, username: user[0].username}, process.env.ACCESS_TOKEN_SECRET,{
+                expiresIn: '20s',
+            });
+            const refreshTokenToken = jwt.sign({email: user[0].email, username: user[0].username}, process.env.REFRESH_TOKEN_SECRET,{
+                expiresIn: '1d',
+            });
+            await User.update({refreshToken: refreshTokenToken}, {
+                where: {
+                    email: req.body.email,
+                },
+            });
+            res.cookie('refreshToken', refreshTokenToken, {
+                httpOnly: true,
+                maxAge: 24 * 60 * 60 * 1000,
+                path: '/refresh_token',
+            });
+            res.json({accessToken: accessToken});
+        } else {
+            res.json({message: 'Wrong password'});
+        }
+    } catch (error){
+        console.error('Error login:', error);
+        res.status(500).json({ message: 'email not register' });
+    }
+
+};
