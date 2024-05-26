@@ -4,6 +4,7 @@ import db from "./config/database.js";
 import router from "./routes/index.js";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 dotenv.config();
 const app = Express();
 
@@ -15,6 +16,7 @@ try{
     console.error("Unable to connect to the database:", error);
 }
 
+app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
 app.use(cookieParser());
 app.use(Express.json());
 app.use(router);

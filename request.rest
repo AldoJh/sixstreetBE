@@ -1,15 +1,15 @@
 GET http://localhost:3000/user
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZG8xMjNAZ21haWwuY29tIiwidXNlcm5hbWUiOiJKb2huIG1pciIsImlhdCI6MTcxNTQxODczMywiZXhwIjoxNzE1NDE4NzUzfQ.2VqQJHsnSLuffg_5fJvjbym9yvrL1auXWIKHrs29HZs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZG8xMjNAZ21haWwuY29tIiwidXNlcm5hbWUiOiJKb2huIG1pciIsImlhdCI6MTcxNjczMDI1MSwiZXhwIjoxNzE2NzMwMjcxfQ.LnMEs8fCGT4fPcNLu2z_qMA9xqpcVV_NeOeWBgFH700
 ###
 POST http://localhost:3000/user
 Content-Type: application/json
 
 {
-    "username": "John mir",
+    "username": "John mit",
     "password": "password123", 
-    "email": "aldo123@gmail.com",
+    "email": "aldo@gmail.com",
     "address": "1234 Main St, New York, NY 10001",
-    "no_hp": "1234567890124",
+    "no_hp": "123456789",
     "referd_kode": "1234"
 }
 ###
@@ -24,3 +24,6 @@ Content-Type: application/json
 
 ###
 GET http://localhost:3000/refreshtoken
+
+###
+DELETE  http://localhost:3000/logout

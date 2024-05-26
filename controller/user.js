@@ -71,18 +71,17 @@ export const login = async (req, res) => {
             const accessToken = jwt.sign({email: user[0].email, username: user[0].username}, process.env.ACCESS_TOKEN_SECRET,{
                 expiresIn: '20s',
             });
-            const refreshTokenToken = jwt.sign({email: user[0].email, username: user[0].username}, process.env.REFRESH_TOKEN_SECRET,{
+            const refreshToken = jwt.sign({email: user[0].email, username: user[0].username}, process.env.REFRESH_TOKEN_SECRET,{
                 expiresIn: '1d',
             });
-            await User.update({refreshToken: refreshTokenToken}, {
+            await User.update({refreshToken: refreshToken}, {
                 where: {
                     email: req.body.email,
                 },
             });
-            res.cookie('refreshToken', refreshTokenToken, {
+            res.cookie('refreshToken', refreshToken, {
                 httpOnly: true,
-                maxAge: 24 * 60 * 60 * 1000,
-                path: '/refresh_token',
+                maxAge: 24 * 60 * 60 * 1000
             });
             res.json({accessToken: accessToken});
         } else {
@@ -93,4 +92,24 @@ export const login = async (req, res) => {
         res.status(500).json({ message: 'email not register' });
     }
 
+};
+
+export const logout = async (req, res) => {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) return res.sendStatus(204); // Unauthorized
+
+    const users = await User.findAll({
+        where: {
+            refreshToken: refreshToken
+        }
+    });
+    if (!users.length) return res.sendStatus(204); // Forbidden
+    const email = users[0].email;
+    await User.update({refreshToken: null}, {
+        where: {
+            email: email,
+        },
+    });
+    res.clearCookie('refreshToken');
+    return res.sendStatus(200); // OK
 };
