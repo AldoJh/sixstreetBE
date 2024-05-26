@@ -2,6 +2,15 @@ import User from "../model/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
+const generateRandomString = (length) => {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        result += characters[randomIndex];
+    }
+    return result;
+};
 
 export const getAllUsers = async (req, res) => {
     try {
@@ -45,7 +54,7 @@ export const createUser = async (req, res) => {
             referd_kode : referd_kode,
             role : 0,
             membership : 0,
-            kode_user : Math.floor(Math.random() * 100000),
+            kode_user : generateRandomString(5),
         });
 
         // Kirim respons sukses

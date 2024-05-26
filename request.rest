@@ -5,11 +5,11 @@ POST http://localhost:3000/user
 Content-Type: application/json
 
 {
-    "username": "John mit",
+    "username": "Johny",
     "password": "password123", 
-    "email": "aldo@gmail.com",
+    "email": "alok@gmail.com",
     "address": "1234 Main St, New York, NY 10001",
-    "no_hp": "123456789",
+    "no_hp": "09909099909",
     "referd_kode": "1234"
 }
 ###
