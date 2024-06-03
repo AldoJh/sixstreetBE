@@ -17,7 +17,7 @@ POST http://localhost:3000/login
 Content-Type: application/json
     
     {
-        "email": "aldo123@gmail.com",
+        "email": "aldo.210170184@mhs.unimal.ac.id",
         "password": "password123"
     }
 
@@ -34,3 +34,7 @@ Content-Type: application/json
 {
     "otp": "486771"
 }
+
+###
+GET http://localhost:3000/detail
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZG8uMjEwMTcwMTg0QG1ocy51bmltYWwuYWMuaWQiLCJ1c2VybmFtZSI6IkFsZG9KSCIsImlhdCI6MTcxNzQzMjQ0MCwiZXhwIjoxNzE3NDMyNDYwfQ.JevVrL-UrYMZeb9kXe7Vd38Y3AIg8FOeqR2sTWLLIAo

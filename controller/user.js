@@ -182,3 +182,16 @@ export const verifyOTP = async (req, res) => {
     }
 };
 
+export const detail = async (req, res) => {
+    try {
+        const refreshToken = req.cookies.refreshToken;
+        const users = await User.findOne({
+            where: {
+                refreshToken: refreshToken
+            }
+        });
+        res.status(200).json(users);
+    } catch (error) {
+        res.json({ message: error });
+    }
+};
