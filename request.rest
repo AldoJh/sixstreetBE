@@ -5,11 +5,10 @@ POST http://localhost:3000/user
 Content-Type: application/json
 
 {
-    "username": "Johny",
+    "username": "AldoJH",
     "password": "password123", 
-    "email": "alok@gmail.com",
-    "address": "1234 Main St, New York, NY 10001",
-    "no_hp": "09909099909",
+    "email": "aldo.210170184@mhs.unimal.ac.id",
+    "no_hp": "081374517354",
     "referd_kode": "1234"
 }
 ###
@@ -27,3 +26,11 @@ GET http://localhost:3000/refreshtoken
 
 ###
 DELETE  http://localhost:3000/logout
+
+###
+POST http://localhost:3000/verifyOTP
+Content-Type: application/json
+
+{
+    "otp": "486771"
+}
