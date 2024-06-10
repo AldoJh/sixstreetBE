@@ -1,5 +1,5 @@
 import Express  from "express";
-import {getAllUsers, createUser, login, logout, verifyOTP, detail} from "../controller/user.js";
+import {getAllUsers, createUser, login, logout, verifyOTP, detail, update,forgotPassword,changePassword} from "../controller/user.js";
 import {verifyToken} from "../middleware/verifytoken.js";
 import {refreshToken} from "../controller/refreshtoken.js";
 const router = Express.Router();
@@ -11,6 +11,9 @@ router.get("/refreshtoken", refreshToken);
 router.delete("/logout", logout);
 router.post("/verifyOTP", verifyOTP);
 router.get("/detail", verifyToken, detail);
+router.put("/update", verifyToken, update);
+router.post("/forgotPassword", forgotPassword);
+router.post("/changePassword", changePassword);
 
 
 

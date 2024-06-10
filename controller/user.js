@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 
+//function generate random string
 const generateRandomString = (length) => {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';
@@ -13,6 +14,7 @@ const generateRandomString = (length) => {
     return result;
 };
 
+//function generate OTP
 const generateOTP = (length) => {
     const characters = '0123456789';
     let result = '';
@@ -23,6 +25,7 @@ const generateOTP = (length) => {
     return result;
 };
 
+//function get semua data user
 export const getAllUsers = async (req, res) => {
     try {
         const users = await User.findAll({
@@ -34,6 +37,7 @@ export const getAllUsers = async (req, res) => {
     }
 };
 
+//function register user
 export const createUser = async (req, res) => {
     const {username, password, no_hp, email, referd_kode} = req.body;
     try {
@@ -103,7 +107,7 @@ export const createUser = async (req, res) => {
 };
 
 
-
+//function login user
 export const login = async (req, res) => {
     try{
         const user = await User.findAll({ 
@@ -111,7 +115,10 @@ export const login = async (req, res) => {
                 email: req.body.email,
             },
         });
-        const match = await bcrypt.compare(req.body.password, user[0].password);
+        const match = await bcrypt.compare(req.body.password, user[0].password); // cek apakah password benar
+        if (user.OTP != null) { // cek apakah user sudah verifikasi
+            return res.status(400).json({ message: 'User not verified' });
+        }else{
         if (match){
             const accessToken = jwt.sign({email: user[0].email, username: user[0].username}, process.env.ACCESS_TOKEN_SECRET,{
                 expiresIn: '20s',
@@ -132,6 +139,8 @@ export const login = async (req, res) => {
         } else {
             res.json({message: 'Wrong password'});
         }
+    }
+        
     } catch (error){
         console.error('Error login:', error);
         res.status(500).json({ message: 'email not register' });
@@ -139,6 +148,7 @@ export const login = async (req, res) => {
 
 };
 
+//function logout user
 export const logout = async (req, res) => {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) return res.sendStatus(204); // Unauthorized
@@ -159,6 +169,7 @@ export const logout = async (req, res) => {
     return res.sendStatus(200); // OK
 };
 
+//function verify OTP user
 export const verifyOTP = async (req, res) => {
     const { otp } = req.body;
     try {
@@ -182,6 +193,7 @@ export const verifyOTP = async (req, res) => {
     }
 };
 
+//function detail user
 export const detail = async (req, res) => {
     try {
         const refreshToken = req.cookies.refreshToken;
@@ -195,3 +207,89 @@ export const detail = async (req, res) => {
         res.json({ message: error });
     }
 };
+
+//function update user
+export const update = async (req, res) => {
+    try {
+        const refreshToken = req.cookies.refreshToken;
+        const user = await User.findOne({
+            where: {
+                refreshToken: refreshToken
+            }
+        });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const { username,  no_hp, email, address, profile_foto } = req.body;
+        const updatedUser = await user.update({
+            username,
+            no_hp,
+            email,
+            address,
+            profile_foto
+        });
+        res.status(200).json(updatedUser);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+//function forgot password to send email to user
+export const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+    try {
+        const user = await User.findOne({ where: { email } });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            secure: false,
+            auth: {
+                user: process.env.EMAIL_USERNAME,
+                pass: process.env.EMAIL_PASSWORD,
+            }
+        });
+
+        const mailOptions = {
+            from: process.env.EMAIL_USERNAME,
+            to: email,
+            subject: 'Forgot Password',
+            text: `link Ubah Password http://localhost:3000/changePassword`,  // Pastikan 'text' menggunakan huruf kecil
+        };
+
+        try {
+            await transporter.sendMail(mailOptions);
+            console.log('Email sent successfully');
+        } catch (emailError) {
+            console.error('Error sending email:', emailError);
+            return res.status(500).json({ message: 'User created, but email not sent', error: emailError.message });
+        }
+
+    } catch (error) {
+        console.error('Error forgot password:', error);
+        res.status(500).json({ message: 'Forgot Password Unsuccessful', error: error.message });
+    }
+};
+
+//function change password
+export const changePassword = async (req, res) => {
+    const { email, password } = req.body;
+    try {
+        const user = await User.findOne({ where: { email } });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const salt = await bcrypt.genSalt();
+        const hashedPassword = await bcrypt.hash(password, salt);
+        const updatedUser = await user.update({
+            password: hashedPassword
+        });
+        res.status(200).json(updatedUser);
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+

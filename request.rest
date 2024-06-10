@@ -1,15 +1,15 @@
 GET http://localhost:3000/user
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZG8xMjNAZ21haWwuY29tIiwidXNlcm5hbWUiOiJKb2huIG1pciIsImlhdCI6MTcxNjczMDI1MSwiZXhwIjoxNzE2NzMwMjcxfQ.LnMEs8fCGT4fPcNLu2z_qMA9xqpcVV_NeOeWBgFH700
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZG8uMjEwMTcwMTg0QG1ocy51bmltYWwuYWMuaWQiLCJ1c2VybmFtZSI6IkFsZG9KSCIsImlhdCI6MTcxODA0MjY4NywiZXhwIjoxNzE4MDQyNzA3fQ.LT_JC6yLYyhsfB0ammnou4D2Yuv0QgqFML3SUhCC6k0
 ###
 POST http://localhost:3000/user
 Content-Type: application/json
 
 {
-    "username": "AldoJH",
+    "username": "ucok",
     "password": "password123", 
-    "email": "aldo.210170184@mhs.unimal.ac.id",
-    "no_hp": "081374517354",
-    "referd_kode": "1234"
+    "email": "aldo1212lsm@gmail.com",
+    "no_hp": "085373743925",
+    "referd_kode": "AVLAH"
 }
 ###
 
@@ -32,9 +32,40 @@ POST http://localhost:3000/verifyOTP
 Content-Type: application/json
 
 {
-    "otp": "486771"
+    "otp": "941741"
 }
 
 ###
 GET http://localhost:3000/detail
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZG8uMjEwMTcwMTg0QG1ocy51bmltYWwuYWMuaWQiLCJ1c2VybmFtZSI6IkFsZG9KSCIsImlhdCI6MTcxNzQzMjQ0MCwiZXhwIjoxNzE3NDMyNDYwfQ.JevVrL-UrYMZeb9kXe7Vd38Y3AIg8FOeqR2sTWLLIAo
+
+###
+PUT http://localhost:3000/update
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZG8uMjEwMTcwMTg0QG1ocy51bmltYWwuYWMuaWQiLCJ1c2VybmFtZSI6IkFsZG9KSCIsImlhdCI6MTcxODA0MDQwNSwiZXhwIjoxNzE4MDQwNDI1fQ.rhQFb1i78uGEeQYUja7gbWza40ZsT9gP5lboMs707B4
+Content-Type: application/json
+
+{
+    "username": "AldoJH",
+    "password": "password",
+    "email": "aldo.210170184@mhs.unimal.ac.id",
+    "no_hp": "081374517354",
+    "address" : "Jl. Kampus Unimal",
+    "profile_foto" : "ucok.jpg"
+}
+
+###
+POST http://localhost:3000/forgotPassword
+Content-Type: application/json
+
+{
+    "email": "aldo.210170184@mhs.unimal.ac.id"
+}
+
+###
+POST http://localhost:3000/changePassword
+Content-Type: application/json
+
+{
+    "email": "aldo.210170184@mhs.unimal.ac.id",
+    "password": "password123"
+}
