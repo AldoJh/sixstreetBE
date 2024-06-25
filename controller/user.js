@@ -274,6 +274,7 @@ export const forgotPassword = async (req, res) => {
 };
 
 //function change password
+//test push
 export const changePassword = async (req, res) => {
     const { email, password } = req.body;
     try {
