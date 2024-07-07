@@ -1,4 +1,5 @@
 import User from "../model/userModel.js";
+import Address from "../model/addressModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
@@ -202,7 +203,19 @@ export const detail = async (req, res) => {
                 refreshToken: refreshToken
             }
         });
-        res.status(200).json(users);
+        const address = await Address.findOne({
+            where: {
+                user_id: users.id
+            }
+        });
+        const response = {
+            username: users.username,
+            no_hp: users.no_hp,
+            email: users.email,
+            address: address.address,
+            profile_foto: users.profile_foto,
+        };
+        res.status(200).json(response);
     } catch (error) {
         res.json({ message: error });
     }
@@ -221,12 +234,11 @@ export const update = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const { username,  no_hp, email, address, profile_foto } = req.body;
+        const { username,  no_hp, email, profile_foto } = req.body;
         const updatedUser = await user.update({
             username,
             no_hp,
             email,
-            address,
             profile_foto
         });
         res.status(200).json(updatedUser);
@@ -290,6 +302,59 @@ export const changePassword = async (req, res) => {
         res.status(200).json(updatedUser);
     }
     catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+//function add address
+export const addAddress = async (req, res) => {
+    const { user_id, address } = req.body;
+    try {
+        const newAddress = await Address.create({
+            user_id,
+            address,
+        });
+        res.status(200).json(newAddress);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+//function delete address
+export const deleteAddress = async (req, res) => {
+    try {
+        const refreshToken = req.cookies.refreshToken;
+        const user = await User.findOne({ where: { refreshToken: refreshToken } });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const address = await Address.findOne({ where: { user_id: user.id } });
+        if (!address) {
+            return res.status(404).json({ message: 'Address not found' });
+        }
+        await address.destroy();
+        res.status(200).json({ message: 'Address deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+//update address
+export const updateAddress = async (req, res) => {
+    const { newAddress } = req.body;
+    try {
+        const refreshToken = req.cookies.refreshToken;
+        const user = await User.findOne({ where: { refreshToken: refreshToken } });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const address = await Address.findOne({ where: { user_id: user.id } });
+        if (!address) {
+            return res.status(404).json({ message: 'Address not found' });
+        }
+        const updatedAddress = await address.update({ address: newAddress });
+        res.status(200).json(updatedAddress);
+    }catch (error) {
         res.status(500).json({ message: error.message });
     }
 };

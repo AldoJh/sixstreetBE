@@ -1,5 +1,5 @@
 GET http://localhost:3000/user
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZG8uMjEwMTcwMTg0QG1ocy51bmltYWwuYWMuaWQiLCJ1c2VybmFtZSI6IkFsZG9KSCIsImlhdCI6MTcxODA0MjY4NywiZXhwIjoxNzE4MDQyNzA3fQ.LT_JC6yLYyhsfB0ammnou4D2Yuv0QgqFML3SUhCC6k0
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZG8xMjEybHNtQGdtYWlsLmNvbSIsInVzZXJuYW1lIjoidWNvayIsImlhdCI6MTcyMDMzNDQxMywiZXhwIjoxNzIwMzM0NDMzfQ.9vXqBqnSIH7bEtDEIkPqPDradcpld_clAMbTy-RaXvE
 ###
 POST http://localhost:3000/user
 Content-Type: application/json
@@ -9,7 +9,7 @@ Content-Type: application/json
     "password": "password123", 
     "email": "aldo1212lsm@gmail.com",
     "no_hp": "085373743925",
-    "referd_kode": "AVLAH"
+    "referd_kode": " "
 }
 ###
 
@@ -17,7 +17,7 @@ POST http://localhost:3000/login
 Content-Type: application/json
     
     {
-        "email": "aldo.210170184@mhs.unimal.ac.id",
+        "email": "aldo1212lsm@gmail.com",
         "password": "password123"
     }
 
@@ -32,13 +32,12 @@ POST http://localhost:3000/verifyOTP
 Content-Type: application/json
 
 {
-    "otp": "941741"
+    "otp": "025430"
 }
 
 ###
 GET http://localhost:3000/detail
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZG8uMjEwMTcwMTg0QG1ocy51bmltYWwuYWMuaWQiLCJ1c2VybmFtZSI6IkFsZG9KSCIsImlhdCI6MTcxNzQzMjQ0MCwiZXhwIjoxNzE3NDMyNDYwfQ.JevVrL-UrYMZeb9kXe7Vd38Y3AIg8FOeqR2sTWLLIAo
-
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZG8xMjEybHNtQGdtYWlsLmNvbSIsInVzZXJuYW1lIjoidWNvayIsImlhdCI6MTcyMDMzNTMwNiwiZXhwIjoxNzIwMzM1MzI2fQ.gozyINWssMVbM543gIjrJy4f3K9k7ludp4heuC7qR8M
 ###
 PUT http://localhost:3000/update
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZG8uMjEwMTcwMTg0QG1ocy51bmltYWwuYWMuaWQiLCJ1c2VybmFtZSI6IkFsZG9KSCIsImlhdCI6MTcxODA0MDQwNSwiZXhwIjoxNzE4MDQwNDI1fQ.rhQFb1i78uGEeQYUja7gbWza40ZsT9gP5lboMs707B4
@@ -49,7 +48,6 @@ Content-Type: application/json
     "password": "password",
     "email": "aldo.210170184@mhs.unimal.ac.id",
     "no_hp": "081374517354",
-    "address" : "Jl. Kampus Unimal",
     "profile_foto" : "ucok.jpg"
 }
 
@@ -68,4 +66,27 @@ Content-Type: application/json
 {
     "email": "aldo.210170184@mhs.unimal.ac.id",
     "password": "password123"
+}
+
+###
+POST http://localhost:3000/addAddress
+Authorization: Bearear eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZG8xMjEybHNtQGdtYWlsLmNvbSIsInVzZXJuYW1lIjoidWNvayIsImlhdCI6MTcyMDMzNjg5MSwiZXhwIjoxNzIwMzM2OTExfQ.FADnkRITVR_xuIFq6Gi09742pzie2C3KZ4gfktK4vVs
+Content-Type: application/json
+
+{
+    "user_id": "1",
+    "address": "Jl. Bakti No. 1"
+}
+
+###
+DELETE http://localhost:3000/deleteAddress
+Authorization: Bearear eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZG8xMjEybHNtQGdtYWlsLmNvbSIsInVzZXJuYW1lIjoidWNvayIsImlhdCI6MTcyMDMzNjg1MywiZXhwIjoxNzIwMzM2ODczfQ.-CDDmwVJzP1i_-rVv8VVGdq0zFfrKICbby9ipiH-LZg
+
+###
+PUT http://localhost:3000/updateAddress
+Authorization: Bearear eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZG8xMjEybHNtQGdtYWlsLmNvbSIsInVzZXJuYW1lIjoidWNvayIsImlhdCI6MTcyMDMzOTIwNywiZXhwIjoxNzIwMzM5MjI3fQ.gWeWDDB075rkke15lkvhNqnSiSpVgREMG_WbZQP1vgQ
+Content-Type: application/json
+
+{
+    "newAddress": "Jl. Bakti No. 8"
 }

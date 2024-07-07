@@ -16,9 +16,6 @@ const User = db.define('User', {
     email: {
         type: DataTypes.STRING,
     },
-    address: {
-        type: DataTypes.STRING,
-    },
     profile_foto: {
         type: DataTypes.STRING,
     },
