@@ -90,3 +90,40 @@ Content-Type: application/json
 {
     "newAddress": "Jl. Bakti No. 8"
 }
+
+###(admin only)
+POST http://localhost:3000/createnews
+Authorization: Bearear eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZG8xMjEybHNtQGdtYWlsLmNvbSIsInVzZXJuYW1lIjoidWNvayIsImlhdCI6MTcyMDM0MjEzMiwiZXhwIjoxNzIwMzQyMTUyfQ.GtY9NbV2VogYOWmhd24MkZ7KzgFKUFVslADUEvZ4MZ0
+Content-Type: application/json
+
+{
+    "judulberita" : "Berita Terbaru",
+    "isi_berita" : "Berita Terbaru Hari ini",
+    "gambar" : "berita.jpg"
+}
+
+###
+GET http://localhost:3000/getnews
+
+###
+PUT http://localhost:3000/updatenews/1
+Authorization: Bearear eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZG8xMjEybHNtQGdtYWlsLmNvbSIsInVzZXJuYW1lIjoidWNvayIsImlhdCI6MTcyMDM0MjY0NiwiZXhwIjoxNzIwMzQyNjY2fQ.QsgDEmj1pzU4oZ_nrG7nEiEPwyU-rrq0AcnQAWXpxKY
+Content-Type: application/json
+
+{
+    "judulberita" : "Berita Terbaru1",
+    "isi_berita" : "Berita Terbaru Hari ini1",
+    "gambar" : "berita.jpg"
+}
+
+###
+GET http://localhost:3000/news
+Content-Type: application/json
+
+{
+    "judulberita": "Berita Terbaru1"
+}
+
+###
+DELETE http://localhost:3000/deletenews/1
+Authorization: Bearear eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZG8xMjEybHNtQGdtYWlsLmNvbSIsInVzZXJuYW1lIjoidWNvayIsImlhdCI6MTcyMDM0MzIxMywiZXhwIjoxNzIwMzQzMjMzfQ.c_u9E3MEiwS8SgWoFa4hgYwWV3Y5TZQHKysVQe8DWvQ

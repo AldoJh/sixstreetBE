@@ -4,7 +4,7 @@ import User from './userModel.js';
 
 const {DataTypes} = Sequelize;
 
-const Address = db.define('Address', {
+const News = db.define('News', {
     user_id: {
         type: DataTypes.INTEGER,
         references: {
@@ -12,14 +12,19 @@ const Address = db.define('Address', {
             key: 'id',
         },
     },
-   address : {
+   judulberita : {
     type: DataTypes.STRING,
+    },
+    isi_berita : {
+        type: DataTypes.TEXT,
+    },
+    gambar : {
+        type: DataTypes.STRING,
     },
 },{
     freezeTableName: true,
 });
 
-User.hasMany(Address, { foreignKey: 'user_id' });
-Address.belongsTo(User, { foreignKey: 'user_id' });
-
-export default Address;
+User.hasMany(News, { foreignKey: 'user_id' });
+News.belongsTo(User, { foreignKey: 'user_id' });
+export default News;
