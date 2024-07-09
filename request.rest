@@ -1,25 +1,25 @@
 GET http://localhost:3000/user
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZG8xMjEybHNtQGdtYWlsLmNvbSIsInVzZXJuYW1lIjoidWNvayIsImlhdCI6MTcyMDMzNDQxMywiZXhwIjoxNzIwMzM0NDMzfQ.9vXqBqnSIH7bEtDEIkPqPDradcpld_clAMbTy-RaXvE
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJpbmFsZGlpaHNhbjA0MDFAZ21haWwuY29tIiwidXNlcm5hbWUiOiJyaW5hbGRpaWhzYW5uIiwiaWF0IjoxNzIwNTEwNzUxLCJleHAiOjE3MjA1MjE1NTF9.Fmy2-KrYS9ugjC06F4sKaj3o3v0TmvopQD0MOy0j4u8
 ###
 POST http://localhost:3000/user
 Content-Type: application/json
 
 {
-    "username": "ucok",
-    "password": "password123", 
-    "email": "aldo1212lsm@gmail.com",
-    "no_hp": "085373743925",
-    "referd_kode": " "
+  "username": "rinaldiihsann",
+  "password": "Ihpatt04", 
+  "email": "rinaldiihsan0401@gmail.com",
+  "no_hp": "085373743925",
+  "referd_kode": " "
 }
 ###
 
 POST http://localhost:3000/login
 Content-Type: application/json
     
-    {
-        "email": "aldo1212lsm@gmail.com",
-        "password": "password123"
-    }
+{
+  "email" : "rinaldiihsan0401@gmail.com",
+  "password" : "Ihpatt04"
+}
 
 ###
 GET http://localhost:3000/refreshtoken
@@ -36,18 +36,17 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:3000/detail
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZG8xMjEybHNtQGdtYWlsLmNvbSIsInVzZXJuYW1lIjoidWNvayIsImlhdCI6MTcyMDMzNTMwNiwiZXhwIjoxNzIwMzM1MzI2fQ.gozyINWssMVbM543gIjrJy4f3K9k7ludp4heuC7qR8M
+GET http://localhost:3000/detail/6
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJpbmFsZGlpaHNhbjA0MDFAZ21haWwuY29tIiwidXNlcm5hbWUiOiJyaW5hbGRpaWhzYW5uIiwiaWF0IjoxNzIwNTEwNzUxLCJleHAiOjE3MjA1MjE1NTF9.Fmy2-KrYS9ugjC06F4sKaj3o3v0TmvopQD0MOy0j4u8
 ###
 PUT http://localhost:3000/update
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZG8uMjEwMTcwMTg0QG1ocy51bmltYWwuYWMuaWQiLCJ1c2VybmFtZSI6IkFsZG9KSCIsImlhdCI6MTcxODA0MDQwNSwiZXhwIjoxNzE4MDQwNDI1fQ.rhQFb1i78uGEeQYUja7gbWza40ZsT9gP5lboMs707B4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJpbmFsZGlpaHNhbjA0MDFAZ21haWwuY29tIiwidXNlcm5hbWUiOiJyaW5hbGRpaWhzYW4iLCJpYXQiOjE3MjA1MDE2OTMsImV4cCI6MTcyMDUxMjQ5M30.PM5vylJsBDF8l595RuQ8vSOXO-RkT392Wllf1knFgek
 Content-Type: application/json
 
 {
-    "username": "AldoJH",
-    "password": "password",
-    "email": "aldo.210170184@mhs.unimal.ac.id",
-    "no_hp": "081374517354",
+    "username": "rinaldiihsan",
+    "email": "rinaldiihsan0401@gmail.com",
+    "no_hp": "082284423150",
     "profile_foto" : "ucok.jpg"
 }
 
