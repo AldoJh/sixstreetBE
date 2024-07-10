@@ -126,3 +126,5 @@ Content-Type: application/json
 ###
 DELETE http://localhost:3000/deletenews/1
 Authorization: Bearear eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZG8xMjEybHNtQGdtYWlsLmNvbSIsInVzZXJuYW1lIjoidWNvayIsImlhdCI6MTcyMDM0MzIxMywiZXhwIjoxNzIwMzQzMjMzfQ.c_u9E3MEiwS8SgWoFa4hgYwWV3Y5TZQHKysVQe8DWvQ
+
+
