@@ -6,7 +6,7 @@ Content-Type: application/json
 
 {
   "username": "rinaldiihsann",
-  "password": "Ihpatt04", 
+  "password": " ", 
   "email": "rinaldiihsan0401@gmail.com",
   "no_hp": "085373743925",
   "referd_kode": " "
@@ -18,7 +18,7 @@ Content-Type: application/json
     
 {
   "email" : "rinaldiihsan0401@gmail.com",
-  "password" : "Ihpatt04"
+  "password" : " "
 }
 
 ###
