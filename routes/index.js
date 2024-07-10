@@ -12,7 +12,7 @@ router.get('/refreshtoken', refreshToken);
 router.delete('/logout', logout);
 router.post('/verifyOTP', verifyOTP);
 router.get('/detail/:id', verifyToken, detail);
-router.put('/update', verifyToken, update);
+router.put('/update/:id', verifyToken, update);
 router.post('/forgotPassword', forgotPassword);
 router.post('/changePassword', changePassword);
 router.post('/addAddress', verifyToken, addAddress);

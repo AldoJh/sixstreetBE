@@ -245,10 +245,10 @@ export const detail = async (req, res) => {
 //function update user
 export const update = async (req, res) => {
   try {
-    const refreshToken = req.cookies.refreshToken;
+    const userId = req.params.id;
     const user = await User.findOne({
       where: {
-        refreshToken: refreshToken,
+        id: userId,
       },
     });
     if (!user) {
@@ -256,13 +256,30 @@ export const update = async (req, res) => {
     }
 
     const { username, no_hp, email, profile_foto } = req.body;
-    const updatedUser = await user.update({
+    await user.update({
       username,
       no_hp,
       email,
       profile_foto,
     });
-    res.status(200).json(updatedUser);
+
+    const updatedUser = await User.findOne({
+      where: {
+        id: user.id,
+      },
+    });
+
+    const response = {
+      message: {
+        id: updatedUser.id,
+        username: updatedUser.username,
+        no_hp: updatedUser.no_hp,
+        email: updatedUser.email,
+        profile_foto: updatedUser.profile_foto,
+      },
+    };
+
+    res.status(200).json(response);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

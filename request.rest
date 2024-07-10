@@ -37,17 +37,17 @@ Content-Type: application/json
 
 ###
 GET http://localhost:3000/detail/6
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJpbmFsZGlpaHNhbjA0MDFAZ21haWwuY29tIiwidXNlcm5hbWUiOiJyaW5hbGRpaWhzYW5uIiwiaWF0IjoxNzIwNTEwNzUxLCJleHAiOjE3MjA1MjE1NTF9.Fmy2-KrYS9ugjC06F4sKaj3o3v0TmvopQD0MOy0j4u8
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJpbmFsZGlpaHNhbjA0MDFAZ21haWwuY29tIiwidXNlcm5hbWUiOiJyaW5hbGRpaWhzYW5uIiwiaWF0IjoxNzIwNTQzOTYzLCJleHAiOjE3MjA1NTQ3NjN9.IefTZr-1OJ46Slx6l83YSwH0KVgNGwjwF6z3NhlccQQ
 ###
-PUT http://localhost:3000/update
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJpbmFsZGlpaHNhbjA0MDFAZ21haWwuY29tIiwidXNlcm5hbWUiOiJyaW5hbGRpaWhzYW4iLCJpYXQiOjE3MjA1MDE2OTMsImV4cCI6MTcyMDUxMjQ5M30.PM5vylJsBDF8l595RuQ8vSOXO-RkT392Wllf1knFgek
+PUT http://localhost:3000/update/6
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJpbmFsZGlpaHNhbjA0MDFAZ21haWwuY29tIiwidXNlcm5hbWUiOiJyaW5hbGRpaWhzYW5uIiwiaWF0IjoxNzIwNTQzOTYzLCJleHAiOjE3MjA1NTQ3NjN9.IefTZr-1OJ46Slx6l83YSwH0KVgNGwjwF6z3NhlccQQ
 Content-Type: application/json
 
 {
     "username": "rinaldiihsan",
     "email": "rinaldiihsan0401@gmail.com",
     "no_hp": "082284423150",
-    "profile_foto" : "ucok.jpg"
+    "profile_foto" : ""
 }
 
 ###
