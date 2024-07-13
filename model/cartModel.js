@@ -4,6 +4,9 @@ import User from './userModel.js';
 
 const {DataTypes} = Sequelize;
 
+User.associate = (models) => {
+    User.hasOne(models.Cart, { foreignKey: 'user_id' });
+  };
 const Cart = db.define('Cart', {
     user_id: {
         type: DataTypes.INTEGER,
@@ -27,9 +30,6 @@ const Cart = db.define('Cart', {
     size: {
         type: DataTypes.STRING,
     },
-    status : {
-        type: DataTypes.STRING,
-    },
     total : {
         type: DataTypes.INTEGER,
     },
@@ -37,7 +37,8 @@ const Cart = db.define('Cart', {
     freezeTableName: true,
 });
 
-User.hasMany(Cart, { foreignKey: 'user_id' });
-Cart.belongsTo(User, { foreignKey: 'user_id' });
+Cart.associate = (models) => {
+    Cart.belongsTo(models.User, { foreignKey: 'user_id' });
+  };
 
 export default Cart;

@@ -5,10 +5,10 @@ POST http://localhost:3000/user
 Content-Type: application/json
 
 {
-  "username": "ihsann",
+  "username": "aldo",
   "password": "", 
-  "email": "rinaldiihsan0401@gmail.com",
-  "no_hp": "085373743925",
+  "email": "kkiki6001@gmail.com",
+  "no_hp": "081374517354",
   "referd_kode": " "
 }
 ###
@@ -17,8 +17,8 @@ POST http://localhost:3000/login
 Content-Type: application/json
     
 {
-  "email" : "rinaldiihsan040104@gmail.com",
-  "password" : "Ihpatt04"
+  "email" : "kkiki6001@gmail.com",
+  "password" : ""
 }
 
 ###
@@ -32,7 +32,7 @@ POST http://localhost:3000/verifyOTP
 Content-Type: application/json
 
 {
-    "otp": "025430"
+    "otp": "536551"
 }
 
 ###
@@ -62,7 +62,7 @@ POST http://localhost:3000/changePassword
 Content-Type: application/json
 
 {
-    "email": "aldo.210170184@mhs.unimal.ac.id",
+    "email": "rinaldiihsan0401@gmail.com",
     "password": "password123"
 }
 
@@ -133,4 +133,36 @@ Content-Type: application/json
 DELETE http://localhost:3000/deletenews/5
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJpbmFsZGlpaHNhbjA0MDEwNEBnbWFpbC5jb20iLCJ1c2VybmFtZSI6Imloc2FubiIsImlhdCI6MTcyMDY2NzIyNCwiZXhwIjoxNzIwNjc4MDI0fQ.5XnxB_He1YSbq9Pi3XrqV4s81nwafgevPCdnmIF7l9U
 
+###
+GET http://localhost:3000/cart/1
+
+###
+POST http://localhost:3000/cart/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImtraWtpNjAwMUBnbWFpbC5jb20iLCJ1c2VybmFtZSI6ImFsZG8iLCJpYXQiOjE3MjA4ODI2MTcsImV4cCI6MTcyMDg4NDQxN30.UwTEOlAo_xscqciycVQFItl_CXt53EA68T-Ipchyjd8
+Content-Type: application/json
+
+{
+    "product_id": "2",
+    "quantity" : "2",
+    "price" : "20000",
+    "name": "Baju",
+    "size" : "M"
+}
+
+###
+PUT http://localhost:3000/cart/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImtraWtpNjAwMUBnbWFpbC5jb20iLCJ1c2VybmFtZSI6ImFsZG8iLCJpYXQiOjE3MjA4ODI2MTcsImV4cCI6MTcyMDg4NDQxN30.UwTEOlAo_xscqciycVQFItl_CXt53EA68T-Ipchyjd8
+Content-Type: application/json
+
+{
+    "product_id": "2",
+    "quantity" : "3",
+    "price" : "10000",
+    "name": "Baju",
+    "size" : "M"
+}
+
+###
+DELETE http://localhost:3000/cart/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImtraWtpNjAwMUBnbWFpbC5jb20iLCJ1c2VybmFtZSI6ImFsZG8iLCJpYXQiOjE3MjA4ODI2MTcsImV4cCI6MTcyMDg4NDQxN30.UwTEOlAo_xscqciycVQFItl_CXt53EA68T-Ipchyjd8
 

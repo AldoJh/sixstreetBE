@@ -40,5 +40,8 @@ const User = db.define('User', {
 },{
     freezeTableName: true,
 });
+User.associate = (models) => {
+    User.hasOne(models.Cart, { foreignKey: 'user_id' });
+  };
 
 export default User;
