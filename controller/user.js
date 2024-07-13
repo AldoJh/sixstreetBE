@@ -147,18 +147,17 @@ export const login = async (req, res) => {
 
     // Generate access token
     const accessToken = jwt.sign({ email: user.email, username: user.username }, process.env.ACCESS_TOKEN_SECRET, {
-      expiresIn: '3h',
+      expiresIn: '30m',
     });
 
     const detailData = {
       user_id: user.id,
-      username: user.username,
     };
 
     // Kirim response dengan accessToken
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      maxAge: 3 * 60 * 60 * 1000, // 3 jam
+      maxAge: 30 * 60 * 1000,
     });
 
     res.status(200).json({ message: 'Login successfully', accessToken, detailData });
@@ -170,12 +169,12 @@ export const login = async (req, res) => {
 
 // function logout user
 export const logout = async (req, res) => {
-  const accessToken = req.cookies.accessToken;
-  if (!accessToken) return res.sendStatus(204); // Unauthorized
-
   try {
-    // Clear access token
-    res.clearCookie('accessToken');
+    const token = req.cookies.accessToken;
+    if (token) {
+      invalidatedTokens.push(token);
+    }
+    res.clearCookie('accessToken', { httpOnly: true });
 
     return res.status(200).json({ message: 'Logout successfully' });
   } catch (error) {
@@ -342,15 +341,38 @@ export const changePassword = async (req, res) => {
   }
 };
 
-//function add address
+//function get address
+export const getAddress = async (req, res) => {
+  const { user_id } = req.params;
+  try {
+    const addresses = await Address.findAll({
+      where: {
+        user_id,
+      },
+    });
+    const response = {
+      addresses: addresses,
+    };
+    if (addresses.length > 0) {
+      res.status(200).json(response);
+    } else {
+      res.status(404).json({ message: 'No addresses found for this user' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Function untuk menambahkan alamat baru
 export const addAddress = async (req, res) => {
-  const { user_id, address } = req.body;
+  const { user_id } = req.params;
+  const { address } = req.body;
   try {
     const newAddress = await Address.create({
       user_id,
       address,
     });
-    res.status(200).json(newAddress);
+    res.status(200).json({ message: 'Address successfully added', newAddress });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -358,13 +380,9 @@ export const addAddress = async (req, res) => {
 
 //function delete address
 export const deleteAddress = async (req, res) => {
+  const { user_id, id } = req.params;
   try {
-    const refreshToken = req.cookies.refreshToken;
-    const user = await User.findOne({ where: { refreshToken: refreshToken } });
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    const address = await Address.findOne({ where: { user_id: user.id } });
+    const address = await Address.findOne({ where: { user_id, id } });
     if (!address) {
       return res.status(404).json({ message: 'Address not found' });
     }
@@ -377,14 +395,10 @@ export const deleteAddress = async (req, res) => {
 
 //update address
 export const updateAddress = async (req, res) => {
+  const { user_id, id } = req.params;
   const { newAddress } = req.body;
   try {
-    const refreshToken = req.cookies.refreshToken;
-    const user = await User.findOne({ where: { refreshToken: refreshToken } });
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    const address = await Address.findOne({ where: { user_id: user.id } });
+    const address = await Address.findOne({ where: { user_id, id } });
     if (!address) {
       return res.status(404).json({ message: 'Address not found' });
     }
