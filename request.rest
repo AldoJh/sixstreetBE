@@ -1,15 +1,16 @@
 GET http://localhost:3000/user
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJpbmFsZGlpaHNhbjA0MDFAZ21haWwuY29tIiwidXNlcm5hbWUiOiJyaW5hbGRpaWhzYW5uIiwiaWF0IjoxNzIwNTEwNzUxLCJleHAiOjE3MjA1MjE1NTF9.Fmy2-KrYS9ugjC06F4sKaj3o3v0TmvopQD0MOy0j4u8
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJpbmFsZGlpaHNhbjA0MDFAZ21haWwuY29tIiwidXNlcm5hbWUiOiJyaW5hbGRpaWhzYW5uIiwiaWF0IjoxNzIxMzU3MzQyLCJleHAiOjE3MjEzNjAzNDJ9.difEoU8kgdk0UUrV1Tygmtulhg7wgSMmGzL8kVq35FA
 ###
 POST http://localhost:3000/user
 Content-Type: application/json
 
 {
-  "username": "aldo",
-  "password": "", 
-  "email": "kkiki6001@gmail.com",
-  "no_hp": "081374517354",
-  "referd_kode": " "
+  "username": "harimuselasaterus",
+  "password": "Ihpatt04", 
+  "email": "harimuselasaterus@gmail.com",
+  "no_hp": "081343567281",
+  "referd_kode": "",
+  "birthday": "2001-04-04"
 }
 ###
 
@@ -17,8 +18,8 @@ POST http://localhost:3000/login
 Content-Type: application/json
     
 {
-  "email" : "kkiki6001@gmail.com",
-  "password" : ""
+  "email" : "rinaldiihsan0401@gmail.com",
+  "password" : "Ihpatt04"
 }
 
 ###
@@ -32,21 +33,22 @@ POST http://localhost:3000/verifyOTP
 Content-Type: application/json
 
 {
-    "otp": "536551"
+    "otp": "389332"
 }
 
 ###
 GET http://localhost:3000/detail/6
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJpbmFsZGlpaHNhbjA0MDFAZ21haWwuY29tIiwidXNlcm5hbWUiOiJyaW5hbGRpaWhzYW5uIiwiaWF0IjoxNzIwNTQzOTYzLCJleHAiOjE3MjA1NTQ3NjN9.IefTZr-1OJ46Slx6l83YSwH0KVgNGwjwF6z3NhlccQQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJpbmFsZGlpaHNhbjA0MDFAZ21haWwuY29tIiwidXNlcm5hbWUiOiJyaW5hbGRpaWhzYW5uIiwiaWF0IjoxNzIxMjMwOTY1LCJleHAiOjE3MjEyMzI3NjV9.A0tFM9i6JMOv_Jm07bKm7eIMPATPJ2z4_DpIWLB06Co
 ###
 PUT http://localhost:3000/update/6
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJpbmFsZGlpaHNhbjA0MDFAZ21haWwuY29tIiwidXNlcm5hbWUiOiJyaW5hbGRpaWhzYW5uIiwiaWF0IjoxNzIwNTQzOTYzLCJleHAiOjE3MjA1NTQ3NjN9.IefTZr-1OJ46Slx6l83YSwH0KVgNGwjwF6z3NhlccQQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJpbmFsZGlpaHNhbjA0MDFAZ21haWwuY29tIiwidXNlcm5hbWUiOiJyaW5hbGRpaWhzYW5uIiwiaWF0IjoxNzIxMjMwOTY1LCJleHAiOjE3MjEyMzI3NjV9.A0tFM9i6JMOv_Jm07bKm7eIMPATPJ2z4_DpIWLB06Co
 Content-Type: application/json
 
 {
     "username": "rinaldiihsan",
     "email": "rinaldiihsan0401@gmail.com",
     "no_hp": "082284423150",
+    "birthday": "2001-04-04"
 }
 
 ###
@@ -134,7 +136,8 @@ DELETE http://localhost:3000/deletenews/5
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJpbmFsZGlpaHNhbjA0MDEwNEBnbWFpbC5jb20iLCJ1c2VybmFtZSI6Imloc2FubiIsImlhdCI6MTcyMDY2NzIyNCwiZXhwIjoxNzIwNjc4MDI0fQ.5XnxB_He1YSbq9Pi3XrqV4s81nwafgevPCdnmIF7l9U
 
 ###
-GET http://localhost:3000/cart/1
+GET http://localhost:3000/cart/6
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJpbmFsZGlpaHNhbjA0MDFAZ21haWwuY29tIiwidXNlcm5hbWUiOiJyaW5hbGRpaWhzYW5uIiwiaWF0IjoxNzIzNjU5MTIwLCJleHAiOjE3MjM2NjIxMjB9.iFDKt_Bq_qSP9r4LRW0QyzB9klCjAOr8SlO4Mg9XSRA
 
 ###
 POST http://localhost:3000/cart/1

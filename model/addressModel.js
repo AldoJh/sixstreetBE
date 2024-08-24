@@ -8,7 +8,7 @@ const Address = db.define('Address', {
     user_id: {
         type: DataTypes.INTEGER,
         references: {
-            model: User, // 'Users' would also work
+            model: User, 
             key: 'id',
         },
     },

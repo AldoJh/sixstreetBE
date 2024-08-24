@@ -1,8 +1,7 @@
 import Express from 'express';
 import db from './config/database.js';
 import User from './model/userModel.js';
-import Address from './model/addressModel.js';
-import News from './model/newsModel.js';
+import Transaction from './model/transactionModel.js'; // Import Transaction model
 import router from './routes/index.js';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
@@ -22,20 +21,17 @@ app.use('/upload', Express.static(path.join(__dirname, 'upload')));
   try {
     await db.authenticate();
     console.log('Connection to the database has been established successfully.');
-    await db.sync(); // Sinkronisasi model dengan database
+
+    // Sync semua model
+    await db.sync();
   } catch (error) {
     console.error('Unable to connect to the database:', error);
-    process.exit(1); // Keluar dari proses Node.js jika tidak dapat terhubung ke database
+    process.exit(1);
   }
 })();
 
 // Middleware
-app.use(
-  cors({
-    origin: '*', // Izinkan permintaan dari semua origin
-    credentials: true, // Izinkan pengiriman cookie melalui CORS
-  })
-);
+app.use(cors({ origin: '*', credentials: true }));
 app.use(cookieParser());
 app.use(Express.json());
 

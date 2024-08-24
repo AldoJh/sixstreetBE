@@ -30,7 +30,7 @@ const generateOTP = (length) => {
 export const getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll({
-      attributes: ['id', 'username', 'no_hp', 'email', 'referd_kode', 'role', 'membership', 'kode_user'],
+      attributes: ['id', 'username', 'no_hp', 'email', 'referd_kode', 'role', 'membership', 'birthday', 'kode_user', 'createdAt', 'updatedAt'],
     });
     res.json(users);
   } catch (error) {
@@ -40,7 +40,7 @@ export const getAllUsers = async (req, res) => {
 
 // Function register user
 export const createUser = async (req, res) => {
-  const { username, password, no_hp, email, referd_kode } = req.body;
+  const { username, password, no_hp, email, birthday, referd_kode } = req.body;
   try {
     // Cek apakah username sudah terdaftar
     const existingUser = await User.findOne({ where: { username } });
@@ -69,6 +69,7 @@ export const createUser = async (req, res) => {
       no_hp,
       email,
       referd_kode,
+      birthday,
       role: 0,
       membership: 0,
       kode_user: generateRandomString(5),
@@ -88,14 +89,42 @@ export const createUser = async (req, res) => {
       from: process.env.EMAIL_USERNAME,
       to: email,
       subject: 'OTP Verification',
-      text: `Your OTP is ${newUser.OTP}`, // Pastikan 'text' menggunakan huruf kecil
+      html: `
+        <div style="font-family: 'Arial', sans-serif; max-width: 600px; margin: auto; padding: 20px;">
+          <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond&display=swap" rel="stylesheet">
+          <header style="text-align: center; padding: 10px; background-color: #333; color: white;">
+            <h1 style="font-family: 'Cormorant Garamond', serif;">SIXSTREET</h1>
+          </header>
+          <main style="padding: 20px; background-color: #f9f9f9;">
+            <h2>Your OTP Code</h2>
+            <p>Your OTP code is: <strong>${newUser.OTP}</strong></p>
+          </main>
+          <footer style="text-align: center; padding: 10px; background-color: #333; color: white;">
+            <p>Thank you for using SIXSTREET</p>
+          </footer>
+        </div>
+      `,
     };
 
     const welcomeMailOptions = {
       from: process.env.EMAIL_USERNAME,
       to: email,
-      subject: 'Welcome in SIXSTREET',
-      text: `Welcome ${username} in SIXSTREET! Thank you for registering at our service, Enjoy and Happy Shopping!.`,
+      subject: 'Welcome to SIXSTREET',
+      html: `
+        <div style="font-family: 'Arial', sans-serif; max-width: 600px; margin: auto; padding: 20px;">
+          <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond&display=swap" rel="stylesheet">
+          <header style="text-align: center; padding: 10px; background-color: #333; color: white;">
+            <h1 style="font-family: 'Cormorant Garamond', serif;">Welcome to SIXSTREET</h1>
+          </header>
+          <main style="padding: 20px; background-color: #f9f9f9;">
+            <h2>Welcome, ${username}!</h2>
+            <p>Thank you for registering at SIXSTREET. Enjoy and happy shopping!</p>
+          </main>
+          <footer style="text-align: center; padding: 10px; background-color: #333; color: white;">
+            <p>Thank you for choosing SIXSTREET</p>
+          </footer>
+        </div>
+      `,
     };
 
     try {
@@ -147,17 +176,18 @@ export const login = async (req, res) => {
 
     // Generate access token
     const accessToken = jwt.sign({ email: user.email, username: user.username }, process.env.ACCESS_TOKEN_SECRET, {
-      expiresIn: '30m',
+      expiresIn: '50m',
     });
 
     const detailData = {
       user_id: user.id,
+      role: user.role,
     };
 
     // Kirim response dengan accessToken
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      maxAge: 30 * 60 * 1000,
+      maxAge: 50 * 60 * 1000,
     });
 
     res.status(200).json({ message: 'Login successfully', accessToken, detailData });
@@ -197,9 +227,7 @@ export const verifyOTP = async (req, res) => {
       return res.status(400).json({ message: 'Invalid OTP' });
     }
 
-    // Verifikasi berhasil, update status verifikasi pengguna
-    await user.update({ OTP: null }); // Bersihkan OTP setelah verifikasi
-
+    await user.update({ OTP: null });
     res.status(200).json({ message: 'OTP verified successfully' });
   } catch (error) {
     console.error('Error verifying OTP:', error);
@@ -231,6 +259,7 @@ export const detail = async (req, res) => {
         username: user.username,
         no_hp: user.no_hp,
         email: user.email,
+        birthday: user.birthday,
         address: address ? address.address : null,
         profile_foto: user.profile_foto,
       },
@@ -254,11 +283,12 @@ export const update = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const { username, no_hp, email, profile_foto } = req.body;
+    const { username, no_hp, email, birthday, profile_foto } = req.body;
     await user.update({
       username,
       no_hp,
       email,
+      birthday,
       profile_foto,
     });
 
@@ -274,6 +304,7 @@ export const update = async (req, res) => {
         username: updatedUser.username,
         no_hp: updatedUser.no_hp,
         email: updatedUser.email,
+        birthday: updatedUser.birthday,
         profile_foto: updatedUser.profile_foto,
       },
     };
@@ -341,20 +372,33 @@ export const changePassword = async (req, res) => {
   }
 };
 
-//function get address
+// Function to get address and user's name
 export const getAddress = async (req, res) => {
   const { user_id } = req.params;
+
+  if (!user_id) {
+    return res.status(400).json({ message: 'User ID is required' });
+  }
+
   try {
     const addresses = await Address.findAll({
-      where: {
-        user_id,
-      },
+      where: { user_id },
+      include: [
+        {
+          model: User,
+          attributes: ['username'],
+          required: true,
+        },
+      ],
     });
-    const response = {
-      addresses: addresses,
-    };
+
     if (addresses.length > 0) {
-      res.status(200).json(response);
+      const response = addresses.map((address) => ({
+        ...address.toJSON(),
+        username: address.User.username,
+      }));
+
+      res.status(200).json({ addresses: response });
     } else {
       res.status(404).json({ message: 'No addresses found for this user' });
     }

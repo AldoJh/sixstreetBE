@@ -3,13 +3,16 @@ import db from '../config/database.js';
 import User from './userModel.js';
 
 const { DataTypes } = Sequelize;
-
 User.associate = (models) => {
   User.hasOne(models.Cart, { foreignKey: 'user_id' });
 };
-const Cart = db.define(
-  'Cart',
+const Transaction = db.define(
+  'Transaction',
   {
+    transaction_uuid: {
+      type: DataTypes.UUID,
+      defaultValue: Sequelize.UUIDV4,
+    },
     user_id: {
       type: DataTypes.INTEGER,
       references: {
@@ -17,23 +20,32 @@ const Cart = db.define(
         key: 'id',
       },
     },
+    name: {
+      type: DataTypes.STRING,
+    },
+    address: {
+      type: DataTypes.STRING,
+    },
     product_id: {
       type: DataTypes.INTEGER,
     },
     quantity: {
       type: DataTypes.INTEGER,
     },
-    price: {
+    product_price: {
       type: DataTypes.INTEGER,
     },
-    name: {
+    product_name: {
       type: DataTypes.STRING,
     },
-    size: {
+    product_size: {
       type: DataTypes.STRING,
     },
     total: {
       type: DataTypes.INTEGER,
+    },
+    status: {
+      type: DataTypes.STRING,
     },
   },
   {
@@ -41,8 +53,8 @@ const Cart = db.define(
   }
 );
 
-Cart.associate = (models) => {
-  Cart.belongsTo(models.User, { foreignKey: 'user_id' });
+Transaction.associate = (models) => {
+  Transaction.belongsTo(models.User, { foreignKey: 'user_id' });
 };
 
-export default Cart;
+export default Transaction;
