@@ -3,6 +3,7 @@ import Address from '../model/addressModel.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
+import axios from 'axios';
 
 //function generate random string
 const generateRandomString = (length) => {
@@ -450,5 +451,35 @@ export const updateAddress = async (req, res) => {
     res.status(200).json(updatedAddress);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+// Fungsi login Jubelio untuk diekspor
+// loginJubelio.js
+export const loginJubelio = async (req, res) => {
+  const email = "rinaldiihsan0401@gmail.com";  // Email diambil dari environment variable
+  const password = "teamWeb2!";  // Password diambil dari environment variable
+
+  try {
+    // Kirim request login ke API Jubelio
+    const response = await axios.post('https://api2.jubelio.com/login', {
+      email: email,
+      password: password
+    });
+
+    // Ambil token dari response API
+    const token = response.data.token;
+
+    // Kirim token kembali ke client
+    res.status(200).json({
+      message: 'Login successful',
+      token: token
+    });
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      res.status(401).json({ message: 'Invalid email or password' });
+    } else {
+      res.status(500).json({ message: error.message });
+    }
   }
 };

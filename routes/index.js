@@ -1,5 +1,5 @@
 import Express from 'express';
-import { getAllUsers, createUser, login, logout, verifyOTP, detail, update, forgotPassword, changePassword, addAddress, deleteAddress, updateAddress, getAddress } from '../controller/user.js';
+import { getAllUsers, createUser, login, logout, verifyOTP, detail, update, forgotPassword, changePassword, addAddress, deleteAddress, updateAddress, getAddress, loginJubelio } from '../controller/user.js';
 import { verifyToken } from '../middleware/verifytoken.js';
 import { refreshToken } from '../controller/refreshtoken.js';
 import { createNews, getNews, updateNews, findnews, deleteNews, getNewsById, getNewsByJudul } from '../controller/news.js';
@@ -67,5 +67,6 @@ router.put('/transaction/:id', verifyToken, updateTransaction);
 router.delete('/transaction/:id', verifyToken, deleteTransaction);
 router.post('/payment', verifyToken, paymentGateway);
 router.post('/transaction/notification', transactionNotification);
+router.post('/loginjubelio', loginJubelio);
 
 export default router;

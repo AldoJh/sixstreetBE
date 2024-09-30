@@ -9,8 +9,7 @@ Content-Type: application/json
   "password": "Ihpatt04", 
   "email": "harimuselasaterus@gmail.com",
   "no_hp": "081343567281",
-  "referd_kode": "",
-  "birthday": "2001-04-04"
+  "referd_kode": ""
 }
 ###
 
@@ -168,4 +167,22 @@ Content-Type: application/json
 ###
 DELETE http://localhost:3000/cart/1
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImtraWtpNjAwMUBnbWFpbC5jb20iLCJ1c2VybmFtZSI6ImFsZG8iLCJpYXQiOjE3MjA4ODI2MTcsImV4cCI6MTcyMDg4NDQxN30.UwTEOlAo_xscqciycVQFItl_CXt53EA68T-Ipchyjd8
+###
+GET http://82.112.237.36:4000/
+###
+POST https://api2.jubelio.com/login
+Content-Type: application/json
 
+{
+    "email": "rinaldiihsan0401@gmail.com",
+    "password": "teamWeb2!"
+}
+
+###
+GET https://api.six6street.co.id/
+
+###
+POST http://localhost:3000/loginjubelio
+
+###
+POST https://api3.six6street.co.id/loginjubelio
