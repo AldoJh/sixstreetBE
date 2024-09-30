@@ -5,6 +5,7 @@ import { refreshToken } from '../controller/refreshtoken.js';
 import { createNews, getNews, updateNews, findnews, deleteNews, getNewsById, getNewsByJudul } from '../controller/news.js';
 import { getCart, addToCart, updateCart, deleteCart, deleteAllCart } from '../controller/cart.js';
 import { getTransaction, getTransactionByUuid, createTransaction, updateTransaction, deleteTransaction, paymentGateway, getAllTransactions, transactionNotification } from '../controller/transaction.js';
+import{ sendEmail }from '../controller/email.js';
 const router = Express.Router();
 import multer from 'multer';
 
@@ -68,5 +69,6 @@ router.delete('/transaction/:id', verifyToken, deleteTransaction);
 router.post('/payment', verifyToken, paymentGateway);
 router.post('/transaction/notification', transactionNotification);
 router.post('/loginjubelio', loginJubelio);
+router.post('/sendEmail', sendEmail);
 
 export default router;

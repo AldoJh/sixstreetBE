@@ -186,3 +186,11 @@ POST http://localhost:3000/loginjubelio
 
 ###
 POST https://api3.six6street.co.id/loginjubelio
+
+###
+POST https://api.six6street.co.id/sendEmail
+Content-Type: application/json
+
+{
+    "email": "aldo1212lsm@gmail.com"
+}
