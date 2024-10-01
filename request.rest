@@ -188,9 +188,17 @@ POST http://localhost:3000/loginjubelio
 POST https://api3.six6street.co.id/loginjubelio
 
 ###
-POST https://api.six6street.co.id/sendEmail
+POST https://api3.six6street.co.id/sendEmail
 Content-Type: application/json
 
 {
     "email": "aldo1212lsm@gmail.com"
+}
+
+###
+POST https://api3.six6street.co.id/cek_password
+Content-Type: application/json
+
+{
+    "password": "1U15H68W"
 }

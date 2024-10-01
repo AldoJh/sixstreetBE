@@ -9,6 +9,9 @@ const EmailModel = db.define(
     email: {
       type: DataTypes.STRING,
     },
+    password: {
+      type: DataTypes.STRING,
+    },
   },
   {
     freezeTableName: true,
