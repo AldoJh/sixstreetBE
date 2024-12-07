@@ -457,14 +457,14 @@ export const updateAddress = async (req, res) => {
 // Fungsi login Jubelio untuk diekspor
 // loginJubelio.js
 export const loginJubelio = async (req, res) => {
-  const email = "rinaldiihsan0401@gmail.com";  // Email diambil dari environment variable
-  const password = "teamWeb2!";  // Password diambil dari environment variable
+  const email = 'rinaldiihsan0401@gmail.com'; // Email diambil dari environment variable
+  const password = 'teamWeb2!'; // Password diambil dari environment variable
 
   try {
     // Kirim request login ke API Jubelio
     const response = await axios.post('https://api2.jubelio.com/login', {
       email: email,
-      password: password
+      password: password,
     });
 
     // Ambil token dari response API
@@ -473,7 +473,7 @@ export const loginJubelio = async (req, res) => {
     // Kirim token kembali ke client
     res.status(200).json({
       message: 'Login successful',
-      token: token
+      token: token,
     });
   } catch (error) {
     if (error.response && error.response.status === 401) {
@@ -481,5 +481,74 @@ export const loginJubelio = async (req, res) => {
     } else {
       res.status(500).json({ message: error.message });
     }
+  }
+};
+
+const RAJA_ONGKIR_URL = process.env.RAJAONGKIR_API_URL;
+const RAJA_ONGKIR_KEY = process.env.RAJAONGKIR_API_KEY;
+
+// Get all cities
+export const getCities = async (req, res) => {
+  try {
+    const response = await axios.get(`	https://pro.rajaongkir.com/api/city`, {
+      headers: {
+        key: '25000b4f35959c8cee83658faa168a16',
+      },
+    });
+
+    res.status(200).json(response.data);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+export const getSubdistricts = async (req, res) => {
+  const { city_id } = req.params;
+
+  try {
+    const response = await axios.get(`https://pro.rajaongkir.com/api/subdistrict`, {
+      params: { city: city_id },
+      headers: {
+        key: '25000b4f35959c8cee83658faa168a16',
+      },
+    });
+
+    res.status(200).json(response.data);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+// Calculate shipping cost
+export const calculateCost = async (req, res) => {
+  const { origin, destination, weight, courier } = req.body;
+
+  try {
+    const response = await axios.post(
+      'https://pro.rajaongkir.com/api/cost',
+      {
+        origin: origin,
+        originType: 'subdistrict',
+        destination: destination,
+        destinationType: 'subdistrict',
+        weight: weight,
+        courier: courier,
+      },
+      {
+        headers: {
+          key: '25000b4f35959c8cee83658faa168a16',
+        },
+      }
+    );
+
+    res.status(200).json(response.data);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };

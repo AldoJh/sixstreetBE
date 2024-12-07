@@ -1,11 +1,29 @@
 import Express from 'express';
-import { getAllUsers, createUser, login, logout, verifyOTP, detail, update, forgotPassword, changePassword, addAddress, deleteAddress, updateAddress, getAddress, loginJubelio } from '../controller/user.js';
+import {
+  getAllUsers,
+  createUser,
+  login,
+  logout,
+  verifyOTP,
+  detail,
+  update,
+  forgotPassword,
+  changePassword,
+  addAddress,
+  deleteAddress,
+  updateAddress,
+  getAddress,
+  loginJubelio,
+  getCities,
+  calculateCost,
+  getSubdistricts,
+} from '../controller/user.js';
 import { verifyToken } from '../middleware/verifytoken.js';
 import { refreshToken } from '../controller/refreshtoken.js';
 import { createNews, getNews, updateNews, findnews, deleteNews, getNewsById, getNewsByJudul } from '../controller/news.js';
 import { getCart, addToCart, updateCart, deleteCart, deleteAllCart } from '../controller/cart.js';
 import { getTransaction, getTransactionByUuid, createTransaction, updateTransaction, deleteTransaction, paymentGateway, getAllTransactions, transactionNotification } from '../controller/transaction.js';
-import{ sendEmail, cek_password }from '../controller/email.js';
+import { sendEmail, cek_password } from '../controller/email.js';
 const router = Express.Router();
 import multer from 'multer';
 
@@ -71,5 +89,8 @@ router.post('/transaction/notification', transactionNotification);
 router.post('/loginjubelio', loginJubelio);
 router.post('/sendEmail', sendEmail);
 router.post('/cek_password', cek_password);
+router.get('/rajacity', getCities);
+router.get('/rajasubdistrict/:city_id', getSubdistricts);
+router.post('/rajacost', calculateCost);
 
 export default router;
