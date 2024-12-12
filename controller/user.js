@@ -487,6 +487,23 @@ export const loginJubelio = async (req, res) => {
 const RAJA_ONGKIR_URL = process.env.RAJAONGKIR_API_URL;
 const RAJA_ONGKIR_KEY = process.env.RAJAONGKIR_API_KEY;
 
+// Get all provinces
+export const getProvinces = async (req, res) => {
+  try {
+    const response = await axios.get(`${RAJA_ONGKIR_URL}/province`, {
+      headers: {
+        key: RAJA_ONGKIR_KEY,
+      },
+    });
+
+    res.status(200).json(response.data);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 // Get all cities
 export const getCities = async (req, res) => {
   try {

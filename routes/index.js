@@ -14,6 +14,7 @@ import {
   updateAddress,
   getAddress,
   loginJubelio,
+  getProvinces,
   getCities,
   calculateCost,
   getSubdistricts,
@@ -89,6 +90,7 @@ router.post('/transaction/notification', transactionNotification);
 router.post('/loginjubelio', loginJubelio);
 router.post('/sendEmail', sendEmail);
 router.post('/cek_password', cek_password);
+router.get('/rajaprovince', getProvinces);
 router.get('/rajacity', getCities);
 router.get('/rajasubdistrict/:city_id', getSubdistricts);
 router.post('/rajacost', calculateCost);
