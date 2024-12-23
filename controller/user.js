@@ -1,5 +1,6 @@
 import User from '../model/userModel.js';
 import Address from '../model/addressModel.js';
+import Voucher from '../model/VoucherModel.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
@@ -25,6 +26,50 @@ const generateOTP = (length) => {
     result += characters[randomIndex];
   }
   return result;
+};
+
+const createUserVouchers = async (userId) => {
+  // Misalnya ada diskon yang diterapkan pada produk tertentu
+  const discountableProducts = {
+    apparel: {
+      '99000': [
+        [18215],
+        [18218, 18210, 18216],
+        [18199],
+      ],
+    },
+    sneakers: {
+      '1500000': [
+        [5472, 999, 1013, 12780],
+        [1027, 18710],
+      ],
+    },
+  };
+
+  const discountPercentages = [10, 10]; // Misalnya 10%
+
+  const vouchers = [];
+  for (let category in discountableProducts) {
+    const products = discountableProducts[category];
+    for (let i = 0; i < products.length; i++) {
+      const voucherCode = `VOUCHER-${category.toUpperCase()}-${i + 1}`;
+      const validUntil = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Kadaluarsa 30 hari
+
+      // Membuat voucher
+      const voucher = await Voucher.create({
+        user_id: userId,
+        code: voucherCode,
+        discountPercentage: discountPercentages[i % discountPercentages.length],
+        isUsed: false,
+        validUntil,
+        applicableProducts: JSON.stringify(products[i]),
+      });
+
+      vouchers.push(voucher);
+    }
+  }
+
+  return vouchers;  // Pastikan untuk mengembalikan array vouchers
 };
 
 //function get semua data user
@@ -77,6 +122,10 @@ export const createUser = async (req, res) => {
       OTP: generateOTP(6),
     });
 
+    
+
+
+    // Setelah user dan voucher dibuat, kirim email secara terpisah
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       secure: false,
@@ -128,6 +177,7 @@ export const createUser = async (req, res) => {
       `,
     };
 
+    // Kirim email dengan handling error
     try {
       // Mengirim email OTP
       await transporter.sendMail(otpMailOptions);
@@ -136,13 +186,10 @@ export const createUser = async (req, res) => {
       // Mengirim email selamat datang
       await transporter.sendMail(welcomeMailOptions);
       console.log('Welcome email sent successfully');
-
-      // Kirim respons sukses
-      res.status(201).json({ message: 'User created successfully and emails sent', user: newUser });
     } catch (emailError) {
       console.error('Error sending email:', emailError);
-      return res.status(500).json({ message: 'User created, but emails not sent', error: emailError.message });
     }
+
   } catch (error) {
     console.error('Error creating user:', error);
     res.status(500).json({ message: 'Register Unsuccessfully', error: error.message });
@@ -214,27 +261,61 @@ export const logout = async (req, res) => {
   }
 };
 
-//function verify OTP user
-export const verifyOTP = async (req, res) => {
-  const { otp } = req.body;
-  try {
-    const user = await User.findOne({ where: { otp } });
+  // Function verify OTP user
+  export const verifyOTP = async (req, res) => {
+    const { otp } = req.body;
+    try {
+      // Cari user berdasarkan OTP
+      const user = await User.findOne({ where: { otp } });
 
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      // Jika user tidak ditemukan
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Cek apakah OTP valid
+      if (user.OTP !== otp) {
+        return res.status(400).json({ message: 'Invalid OTP' });
+      }
+
+      // Update OTP menjadi null setelah verifikasi
+      await user.update({ OTP: null });
+
+      const id = user.id;
+      const discountableProducts = ["apparel", "sneakers"] //category product nya
+      const discountPercentages = [10, 10]; // Persentase diskon yang diterapkan
+
+      const vouchers = [];
+
+      for (let i = 0; i < discountableProducts.length; i++) {
+        const category = discountableProducts[i];
+        const discountPercentage = discountPercentages[i % discountPercentages.length];
+        const voucherCode = `VOUCHER-${category.toUpperCase()}-${i + 1}-${id}`;
+
+        const validUntil = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Kadaluarsa 30 hari
+
+        const voucher = await Voucher.create({
+          user_id: id,
+          code: voucherCode,
+          discountPercentage,
+          isUsed: false,
+          validUntil,
+          applicableProducts: JSON.stringify([category]), // Menyimpan produk yang berlaku untuk voucher ini
+        });
+        vouchers.push(voucher);
+      }
+     
+
+      // Kirim respons sukses beserta data voucher yang dibuat
+      res.status(200).json({
+        message: 'OTP verified successfully', vouchers// Mengirimkan array vouchers yang berhasil dibuat
+      });
+
+    } catch (error) {
+      console.error('Error verifying OTP:', error);
+      res.status(500).json({ message: 'Verification Unsuccessful', error: error.message });
     }
-
-    if (user.OTP !== otp) {
-      return res.status(400).json({ message: 'Invalid OTP' });
-    }
-
-    await user.update({ OTP: null });
-    res.status(200).json({ message: 'OTP verified successfully' });
-  } catch (error) {
-    console.error('Error verifying OTP:', error);
-    res.status(500).json({ message: 'Verification Unsuccessful', error: error.message });
-  }
-};
+  };
 
 //function detail user
 export const detail = async (req, res) => {
@@ -457,14 +538,14 @@ export const updateAddress = async (req, res) => {
 // Fungsi login Jubelio untuk diekspor
 // loginJubelio.js
 export const loginJubelio = async (req, res) => {
-  const email = "rinaldiihsan0401@gmail.com";  // Email diambil dari environment variable
-  const password = "teamWeb2!";  // Password diambil dari environment variable
+  const email = 'rinaldiihsan0401@gmail.com'; // Email diambil dari environment variable
+  const password = 'teamWeb2!'; // Password diambil dari environment variable
 
   try {
     // Kirim request login ke API Jubelio
     const response = await axios.post('https://api2.jubelio.com/login', {
       email: email,
-      password: password
+      password: password,
     });
 
     // Ambil token dari response API
@@ -473,7 +554,7 @@ export const loginJubelio = async (req, res) => {
     // Kirim token kembali ke client
     res.status(200).json({
       message: 'Login successful',
-      token: token
+      token: token,
     });
   } catch (error) {
     if (error.response && error.response.status === 401) {
@@ -481,5 +562,88 @@ export const loginJubelio = async (req, res) => {
     } else {
       res.status(500).json({ message: error.message });
     }
+  }
+};
+
+// Get all provinces
+export const getProvinces = async (req, res) => {
+  try {
+    const response = await axios.get(`https://pro.rajaongkir.com/api/province`, {
+      headers: {
+        key: '25000b4f35959c8cee83658faa168a16',
+      },
+    });
+
+    res.status(200).json(response.data);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+// Get all cities
+export const getCities = async (req, res) => {
+  try {
+    const response = await axios.get(`	https://pro.rajaongkir.com/api/city`, {
+      headers: {
+        key: '25000b4f35959c8cee83658faa168a16',
+      },
+    });
+
+    res.status(200).json(response.data);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+export const getSubdistricts = async (req, res) => {
+  const { city_id } = req.params;
+
+  try {
+    const response = await axios.get(`https://pro.rajaongkir.com/api/subdistrict`, {
+      params: { city: city_id },
+      headers: {
+        key: '25000b4f35959c8cee83658faa168a16',
+      },
+    });
+
+    res.status(200).json(response.data);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+// Calculate shipping cost
+export const calculateCost = async (req, res) => {
+  const { origin, destination, weight, courier } = req.body;
+
+  try {
+    const response = await axios.post(
+      'https://pro.rajaongkir.com/api/cost',
+      {
+        origin: origin,
+        originType: 'subdistrict',
+        destination: destination,
+        destinationType: 'subdistrict',
+        weight: weight,
+        courier: courier,
+      },
+      {
+        headers: {
+          key: '25000b4f35959c8cee83658faa168a16',
+        },
+      }
+    );
+
+    res.status(200).json(response.data);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };

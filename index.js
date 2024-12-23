@@ -2,6 +2,7 @@ import Express from 'express';
 import db from './config/database.js';
 import User from './model/userModel.js';
 import Transaction from './model/transactionModel.js'; // Import Transaction model
+import Voucher from './model/VoucherModel.js';
 import router from './routes/index.js';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';

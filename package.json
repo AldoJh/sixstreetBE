@@ -29,5 +29,6 @@
     "sequelize": "^6.37.3",
     "uuid": "^10.0.0"
   },
+  "devDependencies": {},
   "description": ""
 }

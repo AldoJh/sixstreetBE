@@ -154,10 +154,11 @@ let snap = new Midtrans.Snap({
 });
 
 export const paymentGateway = async (req, res) => {
-  const { transaction_id, name, address, items } = req.body;
-  const calculatedTotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const { transaction_id, name, address, items, shipping_cost } = req.body;
+  // Hitung subtotal dengan quantity yang benar
+  const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const total = subtotal + (parseInt(shipping_cost) || 0);
 
-  // Log data yang diterima dari request
   console.log('Received request body:', req.body);
 
   if (!transaction_id || !items || !items.length) {
@@ -166,27 +167,32 @@ export const paymentGateway = async (req, res) => {
   }
 
   try {
-    // Menyusun parameter transaksi
     const parameter = {
       transaction_details: {
         order_id: transaction_id,
-        gross_amount: calculatedTotal,
+        gross_amount: total,
       },
-      item_details: items.map((item) => ({
-        id: item.id,
-        price: item.price,
-        quantity: item.quantity,
-        name: item.name,
-      })),
+      item_details: [
+        // Product items dengan quantity sesuai
+        ...items.map((item) => ({
+          id: item.id,
+          price: item.price,
+          quantity: item.quantity, // Quantity dari masing-masing item
+          name: item.name,
+        })),
+        // Shipping cost
+        {
+          id: 'SHIPPING_COST',
+          price: parseInt(shipping_cost) || 0,
+          quantity: 1, // Shipping cost tetap quantity 1
+          name: 'Biaya Pengiriman',
+        },
+      ],
       customer_details: {
         first_name: name,
-        shipping_address: {
-          address: address,
-        },
       },
     };
 
-    // Membuat transaksi dengan Midtrans Snap
     const transactionToken = await snap.createTransaction(parameter);
     res.status(200).json(transactionToken);
   } catch (error) {

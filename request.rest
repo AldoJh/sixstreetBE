@@ -5,10 +5,11 @@ POST http://localhost:3000/user
 Content-Type: application/json
 
 {
-  "username": "harimuselasaterus",
+  "username": "kontol",
   "password": "Ihpatt04", 
-  "email": "harimuselasaterus@gmail.com",
-  "no_hp": "081343567281",
+  "email": "kkikdadask@gmail.com",
+  "no_hp": "080080808088",
+  "birthday": "2003-12-01",
   "referd_kode": ""
 }
 ###
@@ -32,7 +33,7 @@ POST http://localhost:3000/verifyOTP
 Content-Type: application/json
 
 {
-    "otp": "389332"
+    "otp": "576998"
 }
 
 ###

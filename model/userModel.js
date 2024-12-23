@@ -50,5 +50,8 @@ const User = db.define(
 User.associate = (models) => {
   User.hasOne(models.Cart, { foreignKey: 'user_id' });
 };
+User.associate = (models) => {
+  User.has(models.Voucher, { foreignKey: 'user_id' });
+};
 
 export default User;
