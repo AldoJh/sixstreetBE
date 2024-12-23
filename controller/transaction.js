@@ -155,6 +155,7 @@ let snap = new Midtrans.Snap({
   clientKey: process.env.MIDTRANS_CLIENT_KEY,
 });
 
+// Payment Gateway
 export const paymentGateway = async (req, res) => {
   const { transaction_id, name, address, items, shipping_cost } = req.body;
   // Hitung subtotal dengan quantity yang benar
