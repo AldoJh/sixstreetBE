@@ -1,10 +1,12 @@
 import Midtrans from 'midtrans-client';
 import Transaction from '../model/transactionModel.js';
 import Cart from '../model/cartModel.js';
+import Voucher from '../model/VoucherModel.js';
 import { v4 as uuidv4 } from 'uuid';
 import dotenv from 'dotenv';
 import crypto from 'crypto';
 import NodeCache from 'node-cache';
+import { where } from 'sequelize';
 dotenv.config();
 
 const cache = new NodeCache({ stdTTL: 60 });
@@ -225,6 +227,12 @@ const updateStatusBaseOnMidtransResponse = async (transaction_uuid, data) => {
     if (transactionStatus === 'capture') {
       if (fraudStatus === 'accept') {
         updatedTransaction = await Transaction.update({ status: 'PAID' }, { where: { transaction_uuid } });
+        const product = await Transaction.findOne({ where: { transaction_uuid } });
+        const product_id = product ? product.product_id : null;
+        const updateVoucher = await Voucher.update(
+          { isUsed: 1 },
+          { where: { product_id } }
+        );
       }
     } else if (transactionStatus === 'settlement') {
       updatedTransaction = await Transaction.update({ status: 'PAID' }, { where: { transaction_uuid } });
@@ -236,7 +244,7 @@ const updateStatusBaseOnMidtransResponse = async (transaction_uuid, data) => {
 
     return {
       status: 'success',
-      data: updatedTransaction,
+      data: updatedTransaction
     };
   } catch (error) {
     return {

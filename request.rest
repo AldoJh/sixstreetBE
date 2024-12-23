@@ -203,3 +203,13 @@ Content-Type: application/json
 {
     "password": "1U15H68W"
 }
+
+###
+
+POST http://localhost:3000/voucher/23
+Content-Type: application/json
+
+{
+    "product_id": 18,
+    "price": 1000000
+}
