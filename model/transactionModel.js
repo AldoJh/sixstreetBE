@@ -23,7 +23,25 @@ const Transaction = db.define(
     name: {
       type: DataTypes.STRING,
     },
-    address: {
+    city: {
+      type: DataTypes.STRING,
+    },
+    sub_district: {
+      type: DataTypes.STRING,
+    },
+    detail_address: {
+      type: DataTypes.TEXT,
+    },
+    expedition: {
+      type: DataTypes.STRING,
+    },
+    expedition_services: {
+      type: DataTypes.STRING,
+    },
+    etd: {
+      type: DataTypes.STRING,
+    },
+    resi: {
       type: DataTypes.STRING,
     },
     product_id: {
