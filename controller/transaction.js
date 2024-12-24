@@ -70,11 +70,7 @@ export const getTransactionByUuid = async (req, res) => {
 
 // Create Transaction
 export const createTransaction = async (req, res) => {
-  const { user_id, name, address } = req.body;
-
-  if (!user_id || !name || !address) {
-    return res.status(400).json({ message: 'All fields are required' });
-  }
+  const { user_id, name, city, sub_district, detail_address, expedition, expedition_services, etd, resi } = req.body;
 
   try {
     // Ambil semua item dari cart untuk user
@@ -99,13 +95,19 @@ export const createTransaction = async (req, res) => {
       transaction_uuid: transactionUuid,
       user_id,
       name,
-      address,
+      city,
+      sub_district,
+      detail_address,
+      expedition,
+      expedition_services,
+      etd,
+      resi,
       product_id: item.product_id,
       product_name: item.name,
       product_price: item.price,
       product_size: item.size,
       quantity: item.quantity,
-      total: totalAmount, // Total keseluruhan untuk transaksi ini
+      total: totalAmount,
       status: 'PENDING',
     }));
 
@@ -119,17 +121,40 @@ export const createTransaction = async (req, res) => {
   }
 };
 
-// Update Transaction
-export const updateTransaction = async (req, res) => {
-  const { id } = req.params;
-  const { user_id, name, address, product_id, quantity, product_price, product_name, product_size, total, status } = req.body;
+// Update Transaction by user_id and uuid
+export const updateTransactionByUuid = async (req, res) => {
+  const { user_id, transaction_uuid } = req.params;
+  const { name, city, sub_district, detail_address, expedition, expedition_services, etd, resi, product_id, quantity, product_price, product_name, product_size, total, status } = req.body;
 
-  if (!user_id || !name || !address || !product_id || !quantity || !product_price || !product_name || !product_size || !total || !status) {
+  if (!user_id || !transaction_uuid || !name || !city || !sub_district || !detail_address || !expedition || !expedition_services || !etd || !product_id || !quantity || !product_price || !product_name || !product_size || !total || !status) {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
   try {
-    const transaction = await Transaction.update({ user_id, name, address, product_id, quantity, product_price, product_name, product_size, total, status }, { where: { id } });
+    const transaction = await Transaction.update(
+      { name, city, sub_district, detail_address, expedition, expedition_services, etd, resi, product_id, quantity, product_price, product_name, product_size, total, status },
+      { where: { user_id, transaction_uuid } }
+    );
+    res.json({ message: 'Transaction updated successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating transaction', error: error.message });
+  }
+};
+
+// Update Transaction
+export const updateTransaction = async (req, res) => {
+  const { id } = req.params;
+  const { user_id, name, city, sub_district, detail_address, expedition, expedition_services, etd, resi, product_id, quantity, product_price, product_name, product_size, total, status } = req.body;
+
+  if (!user_id || !name || !city || !sub_district || !detail_address || !expedition || !expedition_services || !etd || !resi || !product_id || !quantity || !product_price || !product_name || !product_size || !total || !status) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  try {
+    const transaction = await Transaction.update(
+      { user_id, name, city, sub_district, detail_address, expedition, expedition_services, etd, resi, product_id, quantity, product_price, product_name, product_size, total, status },
+      { where: { id } }
+    );
     res.json({ message: 'Transaction updated successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error updating transaction', error: error.message });
@@ -157,7 +182,7 @@ let snap = new Midtrans.Snap({
 
 // Payment Gateway
 export const paymentGateway = async (req, res) => {
-  const { transaction_id, name, address, items, shipping_cost } = req.body;
+  const { transaction_id, name, city, sub_district, detail_address, expedition, expedition_services, etd, resi, items, shipping_cost } = req.body;
   // Hitung subtotal dengan quantity yang benar
   const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const total = subtotal + (parseInt(shipping_cost) || 0);
@@ -193,6 +218,15 @@ export const paymentGateway = async (req, res) => {
       ],
       customer_details: {
         first_name: name,
+        address: {
+          city,
+          sub_district,
+          detail_address,
+        },
+        expedition,
+        expedition_services,
+        etd,
+        resi,
       },
     };
 
@@ -230,10 +264,7 @@ const updateStatusBaseOnMidtransResponse = async (transaction_uuid, data) => {
         updatedTransaction = await Transaction.update({ status: 'PAID' }, { where: { transaction_uuid } });
         const product = await Transaction.findOne({ where: { transaction_uuid } });
         const product_id = product ? product.product_id : null;
-        const updateVoucher = await Voucher.update(
-          { isUsed: 1 },
-          { where: { product_id } }
-        );
+        const updateVoucher = await Voucher.update({ isUsed: 1 }, { where: { product_id } });
       }
     } else if (transactionStatus === 'settlement') {
       updatedTransaction = await Transaction.update({ status: 'PAID' }, { where: { transaction_uuid } });
@@ -245,7 +276,7 @@ const updateStatusBaseOnMidtransResponse = async (transaction_uuid, data) => {
 
     return {
       status: 'success',
-      data: updatedTransaction
+      data: updatedTransaction,
     };
   } catch (error) {
     return {

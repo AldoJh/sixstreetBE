@@ -32,14 +32,10 @@ const createUserVouchers = async (userId) => {
   // Misalnya ada diskon yang diterapkan pada produk tertentu
   const discountableProducts = {
     apparel: {
-      '99000': [
-        [18215],
-        [18218, 18210, 18216],
-        [18199],
-      ],
+      99000: [[18215], [18218, 18210, 18216], [18199]],
     },
     sneakers: {
-      '1500000': [
+      1500000: [
         [5472, 999, 1013, 12780],
         [1027, 18710],
       ],
@@ -69,7 +65,7 @@ const createUserVouchers = async (userId) => {
     }
   }
 
-  return vouchers;  // Pastikan untuk mengembalikan array vouchers
+  return vouchers; // Pastikan untuk mengembalikan array vouchers
 };
 
 //function get semua data user
@@ -121,9 +117,6 @@ export const createUser = async (req, res) => {
       kode_user: generateRandomString(5),
       OTP: generateOTP(6),
     });
-
-    
-
 
     // Setelah user dan voucher dibuat, kirim email secara terpisah
     const transporter = nodemailer.createTransport({
@@ -189,7 +182,6 @@ export const createUser = async (req, res) => {
     } catch (emailError) {
       console.error('Error sending email:', emailError);
     }
-
   } catch (error) {
     console.error('Error creating user:', error);
     res.status(500).json({ message: 'Register Unsuccessfully', error: error.message });
@@ -261,61 +253,60 @@ export const logout = async (req, res) => {
   }
 };
 
-  // Function verify OTP user
-  export const verifyOTP = async (req, res) => {
-    const { otp } = req.body;
-    try {
-      // Cari user berdasarkan OTP
-      const user = await User.findOne({ where: { otp } });
+// Function verify OTP user
+export const verifyOTP = async (req, res) => {
+  const { otp } = req.body;
+  try {
+    // Cari user berdasarkan OTP
+    const user = await User.findOne({ where: { otp } });
 
-      // Jika user tidak ditemukan
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-
-      // Cek apakah OTP valid
-      if (user.OTP !== otp) {
-        return res.status(400).json({ message: 'Invalid OTP' });
-      }
-
-      // Update OTP menjadi null setelah verifikasi
-      await user.update({ OTP: null });
-
-      const id = user.id;
-      const discountableProducts = ["apparel", "sneakers"] //category product nya
-      const discountPercentages = [10, 10]; // Persentase diskon yang diterapkan
-
-      const vouchers = [];
-
-      for (let i = 0; i < discountableProducts.length; i++) {
-        const category = discountableProducts[i];
-        const discountPercentage = discountPercentages[i % discountPercentages.length];
-        const voucherCode = `VOUCHER-${category.toUpperCase()}-${i + 1}-${id}`;
-
-        const validUntil = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Kadaluarsa 30 hari
-
-        const voucher = await Voucher.create({
-          user_id: id,
-          code: voucherCode,
-          discountPercentage,
-          isUsed: false,
-          validUntil,
-          applicableProducts: JSON.stringify([category]), // Menyimpan produk yang berlaku untuk voucher ini
-        });
-        vouchers.push(voucher);
-      }
-     
-
-      // Kirim respons sukses beserta data voucher yang dibuat
-      res.status(200).json({
-        message: 'OTP verified successfully', vouchers// Mengirimkan array vouchers yang berhasil dibuat
-      });
-
-    } catch (error) {
-      console.error('Error verifying OTP:', error);
-      res.status(500).json({ message: 'Verification Unsuccessful', error: error.message });
+    // Jika user tidak ditemukan
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
-  };
+
+    // Cek apakah OTP valid
+    if (user.OTP !== otp) {
+      return res.status(400).json({ message: 'Invalid OTP' });
+    }
+
+    // Update OTP menjadi null setelah verifikasi
+    await user.update({ OTP: null });
+
+    const id = user.id;
+    const discountableProducts = ['apparel', 'sneakers']; //category product nya
+    const discountPercentages = [10, 10]; // Persentase diskon yang diterapkan
+
+    const vouchers = [];
+
+    for (let i = 0; i < discountableProducts.length; i++) {
+      const category = discountableProducts[i];
+      const discountPercentage = discountPercentages[i % discountPercentages.length];
+      const voucherCode = `VOUCHER-${category.toUpperCase()}-${i + 1}-${id}`;
+
+      const validUntil = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Kadaluarsa 30 hari
+
+      const voucher = await Voucher.create({
+        user_id: id,
+        code: voucherCode,
+        discountPercentage,
+        isUsed: false,
+        validUntil,
+        applicableProducts: JSON.stringify([category]), // Menyimpan produk yang berlaku untuk voucher ini
+      });
+      vouchers.push(voucher);
+    }
+
+    // Kirim respons sukses beserta data voucher yang dibuat
+    res.status(200).json({
+      message: 'OTP verified successfully',
+      vouchers, // Mengirimkan array vouchers yang berhasil dibuat
+    });
+  } catch (error) {
+    console.error('Error verifying OTP:', error);
+    res.status(500).json({ message: 'Verification Unsuccessful', error: error.message });
+  }
+};
 
 //function detail user
 export const detail = async (req, res) => {
