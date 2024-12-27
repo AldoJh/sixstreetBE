@@ -219,7 +219,7 @@ export const implement_voucher = async (req, res) => {
     }
 
     if (!voucher && Accessories.includes(product_id)) {
-      if (price <= 1500000) {
+      if (price <= 990000) {
         return res.status(400).json({ message: 'Price must be greater than 1500000 for sneakers products.' });
       }
 
