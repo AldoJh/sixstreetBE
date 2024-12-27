@@ -103,7 +103,7 @@ export const createTransaction = async (req, res) => {
       etd,
       resi,
       product_id: item.product_id,
-      product_name: item.name,
+      product_name: cleanProductName(item.name),
       product_price: item.price,
       product_size: item.size,
       quantity: item.quantity,
@@ -180,17 +180,24 @@ let snap = new Midtrans.Snap({
   clientKey: process.env.MIDTRANS_CLIENT_KEY,
 });
 
+const cleanProductName = (name) => {
+  // Hapus simbol dan potong nama jika lebih dari 50 karakter
+  const cleanName = name.replace(/[()]/g, '').trim();
+  return cleanName.length > 50 ? cleanName.substring(0, 50) : cleanName;
+};
+
 // Payment Gateway
 export const paymentGateway = async (req, res) => {
   const { transaction_id, name, city, sub_district, detail_address, expedition, expedition_services, etd, resi, items, shipping_cost } = req.body;
-  // Hitung subtotal dengan quantity yang benar
-  const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const total = subtotal + (parseInt(shipping_cost) || 0);
 
-  console.log('Received request body:', req.body);
+  const shippingCostNumber = parseInt(shipping_cost);
+  const subtotal = items.reduce((acc, item) => {
+    const itemTotal = parseFloat((item.price * item.quantity).toFixed(2));
+    return acc + itemTotal;
+  }, 0);
+  const total = Math.round(subtotal + shippingCostNumber);
 
   if (!transaction_id || !items || !items.length) {
-    console.error('Missing required fields');
     return res.status(400).json({ message: 'Transaction ID, total, and items are required' });
   }
 
@@ -201,18 +208,16 @@ export const paymentGateway = async (req, res) => {
         gross_amount: total,
       },
       item_details: [
-        // Product items dengan quantity sesuai
         ...items.map((item) => ({
           id: item.id,
           price: item.price,
-          quantity: item.quantity, // Quantity dari masing-masing item
-          name: item.name,
+          quantity: item.quantity,
+          name: cleanProductName(item.name),
         })),
-        // Shipping cost
         {
           id: 'SHIPPING_COST',
-          price: parseInt(shipping_cost) || 0,
-          quantity: 1, // Shipping cost tetap quantity 1
+          price: shippingCostNumber,
+          quantity: 1,
           name: 'Biaya Pengiriman',
         },
       ],
@@ -233,12 +238,6 @@ export const paymentGateway = async (req, res) => {
     const transactionToken = await snap.createTransaction(parameter);
     res.status(200).json(transactionToken);
   } catch (error) {
-    console.error('Error generating transaction token:', {
-      message: error.message,
-      stack: error.stack,
-      response: error.response ? error.response.data : undefined,
-    });
-
     res.status(500).json({ message: 'Error generating transaction token', error: error.message });
   }
 };
