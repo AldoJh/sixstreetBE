@@ -171,6 +171,16 @@ export const implement_voucher = async (req, res) => {
     12794, 7560, 7545, 17895, 1013
   ];
 
+  const Accessories = [
+    7339, 7340, 17860, 1147, 7332,
+    1143, 10217, 36, 5516, 10230, 
+    12622, 12628, 12632, 15320, 
+    18225, 2835, 10222, 12621, 
+    12626, 12631, 24806, 24807, 
+    1149, 12610, 12611, 10219, 17866, 
+    1139, 1137, 12432, 5429
+  ];
+
   try {
     let voucher;
 
@@ -208,6 +218,21 @@ export const implement_voucher = async (req, res) => {
       });
     }
 
+    if (!voucher && Accessories.includes(product_id)) {
+      if (price <= 1500000) {
+        return res.status(400).json({ message: 'Price must be greater than 1500000 for sneakers products.' });
+      }
+
+      // Menggunakan Op.like untuk memeriksa apakah kategori "sneakers" ada dalam JSON
+      voucher = await Voucher.findOne({
+        where: {
+          user_id: user_id,  // Memastikan voucher untuk user ini
+          applicableProducts: { [Op.like]: '%"Accessories"%' },  // Mencari apakah "sneakers" ada dalam kolom JSON
+          isUsed: false,  // Voucher harus belum digunakan
+          validUntil: { [Op.gte]: new Date() }  // Voucher harus masih berlaku
+        }
+      });
+    }
     // Jika voucher tidak ditemukan di kedua kategori
     if (!voucher) {
       return res.status(404).json({ message: 'No valid voucher found for this product' });

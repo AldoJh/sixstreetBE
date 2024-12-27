@@ -18,6 +18,7 @@ import {
   getCities,
   calculateCost,
   getSubdistricts,
+  getVouchers,
 } from '../controller/user.js';
 import { verifyToken } from '../middleware/verifytoken.js';
 import { refreshToken } from '../controller/refreshtoken.js';
@@ -101,5 +102,6 @@ router.get('/rajasubdistrict/:city_id', getSubdistricts);
 router.post('/rajacost', calculateCost);
 // Voucher
 router.post('/voucher/:user_id', implement_voucher);
+router.post('/voucher', getVouchers);
 
 export default router;
