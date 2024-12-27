@@ -274,8 +274,8 @@ export const verifyOTP = async (req, res) => {
     await user.update({ OTP: null });
 
     const id = user.id;
-    const discountableProducts = ['apparel', 'sneakers']; //category product nya
-    const discountPercentages = [10, 10]; // Persentase diskon yang diterapkan
+    const discountableProducts = ['apparel', 'sneakers', 'Accessories']; //category product nya
+    const discountPercentages = [10, 10, 10]; // Persentase diskon yang diterapkan
 
     const vouchers = [];
 
@@ -636,5 +636,16 @@ export const calculateCost = async (req, res) => {
     res.status(500).json({
       message: error.message,
     });
+  }
+};
+
+// get all vouchers
+export const getVouchers = async (req, res) => {
+  const { user_id } = req.body;
+  try {
+    const vouchers = await Voucher.findAll({ where: { user_id } });
+    res.status(200).json(vouchers);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
