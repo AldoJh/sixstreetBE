@@ -23,7 +23,7 @@ import {
 import { verifyToken } from '../middleware/verifytoken.js';
 import { refreshToken } from '../controller/refreshtoken.js';
 import { createNews, getNews, updateNews, findnews, deleteNews, getNewsById, getNewsByJudul } from '../controller/news.js';
-import { getCart, addToCart, updateCart, deleteCart, deleteAllCart, implement_voucher } from '../controller/cart.js';
+import { getCart, addToCart, updateCart, deleteCart, deleteAllCart, implement_voucher, implement_voucher_sixstreet } from '../controller/cart.js';
 import { getTransaction, getTransactionByUuid, createTransaction, updateTransaction, deleteTransaction, paymentGateway, getAllTransactions, transactionNotification, updateTransactionByUuid } from '../controller/transaction.js';
 import { sendEmail, cek_password } from '../controller/email.js';
 const router = Express.Router();
@@ -103,5 +103,6 @@ router.post('/rajacost', calculateCost);
 // Voucher
 router.post('/voucher/:user_id', implement_voucher);
 router.post('/voucher', getVouchers);
+router.post('/voucher_sixstreet/:user_id', implement_voucher_sixstreet);
 
 export default router;
