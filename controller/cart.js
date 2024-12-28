@@ -203,7 +203,7 @@ export const implement_voucher = async (req, res) => {
 
     // Jika voucher tidak ditemukan di apparel, cek di sneakers dan harga lebih dari 1500000
     if (!voucher && sneakers.includes(product_id)) {
-      if (price <= 1500000) {
+      if (price <= 990000) {
         return res.status(400).json({ message: 'Price must be greater than 1500000 for sneakers products.' });
       }
 
