@@ -274,8 +274,8 @@ export const verifyOTP = async (req, res) => {
     await user.update({ OTP: null });
 
     const id = user.id;
-    const discountableProducts = ['apparel', 'sneakers', 'Accessories']; //category product nya
-    const discountPercentages = [10, 10, 10]; // Persentase diskon yang diterapkan
+    const discountableProducts = ['apparel', 'sneakers', 'Accessories', 'Sixstreet']; //category product nya
+    const discountPercentages = [10, 10, 10, 50]; // Persentase diskon yang diterapkan
 
     const vouchers = [];
 
