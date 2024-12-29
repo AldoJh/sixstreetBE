@@ -72,7 +72,7 @@ const createUserVouchers = async (userId) => {
 export const getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll({
-      attributes: ['id', 'username', 'no_hp', 'email', 'referd_kode', 'role', 'membership', 'birthday', 'kode_user', 'createdAt', 'updatedAt'],
+      attributes: ['id', 'fullName', 'no_hp', 'email', 'referd_kode', 'role', 'membership', 'birthday', 'kode_user', 'createdAt', 'updatedAt'],
     });
     res.json(users);
   } catch (error) {
@@ -82,12 +82,13 @@ export const getAllUsers = async (req, res) => {
 
 // Function register user
 export const createUser = async (req, res) => {
-  const { username, password, no_hp, email, birthday, referd_kode } = req.body;
+  const { fullName, password, email, no_hp, birthday = '', referd_kode = '' } = req.body;
+
   try {
-    // Cek apakah username sudah terdaftar
-    const existingUser = await User.findOne({ where: { username } });
+    // Cek apakah fullName sudah terdaftar
+    const existingUser = await User.findOne({ where: { fullName } });
     if (existingUser) {
-      return res.status(400).json({ message: 'Username already exists' });
+      return res.status(400).json({ message: 'fullName already exists' });
     }
 
     // Cek apakah no hp sudah terdaftar
@@ -102,11 +103,11 @@ export const createUser = async (req, res) => {
       return res.status(400).json({ message: 'Email already exists' });
     }
 
-    // Jika username belum terdaftar, buat pengguna baru
+    // Jika fullName belum terdaftar, buat pengguna baru
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
     const newUser = await User.create({
-      username,
+      fullName,
       password: hashedPassword,
       no_hp,
       email,
@@ -160,7 +161,7 @@ export const createUser = async (req, res) => {
             <h1 style="font-family: 'Cormorant Garamond', serif;">Welcome to SIXSTREET</h1>
           </header>
           <main style="padding: 20px; background-color: #f9f9f9;">
-            <h2>Welcome, ${username}!</h2>
+            <h2>Welcome, ${fullName}!</h2>
             <p>Thank you for registering at SIXSTREET. Enjoy and happy shopping!</p>
           </main>
           <footer style="text-align: center; padding: 10px; background-color: #333; color: white;">
@@ -178,6 +179,7 @@ export const createUser = async (req, res) => {
 
       // Mengirim email selamat datang
       await transporter.sendMail(welcomeMailOptions);
+      res.status(201).json('Successfully');
       console.log('Welcome email sent successfully');
     } catch (emailError) {
       console.error('Error sending email:', emailError);
@@ -215,7 +217,7 @@ export const login = async (req, res) => {
     }
 
     // Generate access token
-    const accessToken = jwt.sign({ email: user.email, username: user.username }, process.env.ACCESS_TOKEN_SECRET, {
+    const accessToken = jwt.sign({ email: user.email, fullName: user.fullName }, process.env.ACCESS_TOKEN_SECRET, {
       expiresIn: '50m',
     });
 
@@ -329,7 +331,7 @@ export const detail = async (req, res) => {
     const response = {
       message: {
         id: user.id,
-        username: user.username,
+        fullName: user.fullName,
         no_hp: user.no_hp,
         email: user.email,
         birthday: user.birthday,
@@ -356,9 +358,9 @@ export const update = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const { username, no_hp, email, birthday, profile_foto } = req.body;
+    const { fullName, no_hp, email, birthday, profile_foto } = req.body;
     await user.update({
-      username,
+      fullName,
       no_hp,
       email,
       birthday,
@@ -374,7 +376,7 @@ export const update = async (req, res) => {
     const response = {
       message: {
         id: updatedUser.id,
-        username: updatedUser.username,
+        fullName: updatedUser.fullName,
         no_hp: updatedUser.no_hp,
         email: updatedUser.email,
         birthday: updatedUser.birthday,
@@ -454,27 +456,30 @@ export const getAddress = async (req, res) => {
   }
 
   try {
-    const addresses = await Address.findAll({
-      where: { user_id },
-      include: [
-        {
-          model: User,
-          attributes: ['username'],
-          required: true,
-        },
-      ],
+    const user = await User.findOne({
+      where: { id: user_id },
+      attributes: ['fullName'],
     });
 
-    if (addresses.length > 0) {
-      const response = addresses.map((address) => ({
-        ...address.toJSON(),
-        username: address.User.username,
-      }));
+    const addresses = await Address.findAll({
+      where: { user_id },
+    });
 
-      res.status(200).json({ addresses: response });
-    } else {
-      res.status(404).json({ message: 'No addresses found for this user' });
+    if (!addresses.length) {
+      res.status(200).json({
+        addresses: [],
+        fullName: user ? user.fullName : null,
+      });
+      return;
     }
+
+    const response = addresses.map((address) => ({
+      ...address.toJSON(),
+      fullName: user.fullName,
+    }));
+
+    console.log('Response:', response);
+    res.status(200).json({ addresses: response });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
