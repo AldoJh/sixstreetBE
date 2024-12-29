@@ -246,3 +246,49 @@ export const implement_voucher = async (req, res) => {
   }
 };
 
+// Implement voucher SIXSTREET
+export const implement_voucher_sixstreet = async (req, res) => {
+  const { product_id, price } = req.body;
+  const { user_id } = req.params;
+  // Daftar produk untuk kategori sixstreet
+  const sixstreet = ['SIXTREET'];
+  try {
+    let voucher;
+    // Mengecek apakah product_id ada di kategori sixstreet dan harga lebih dari 990000
+    if (sixstreet.includes(product_id)) {
+      // Menggunakan Op.like untuk memeriksa apakah kategori "sixstreet" ada dalam JSON
+      voucher = await Voucher.findOne({
+        where: {
+          user_id: user_id, // Memastikan voucher untuk user ini
+          applicableProducts: { [Op.like]: '%"Sixstreet"%' }, // Mencari apakah "apparel" ada dalam kolom JSON
+          isUsed: false, // Voucher harus belum digunakan
+          validUntil: { [Op.gte]: new Date() }, // Voucher harus masih berlaku
+        },
+      });
+    }
+
+    // Jika voucher tidak ditemukan di kedua kategori
+    if (!voucher) {
+      return res.status(404).json({ message: 'No valid voucher found for this product' });
+    }
+    // Mengambil discountPercentage dari voucher yang ditemukan
+    const discountPercentage = voucher.discountPercentage;
+    // Menghitung diskon dan harga akhir
+    const discountAmount = (price * discountPercentage) / 100;
+    const finalPrice = price - discountAmount;
+    //update table voucher with product_id
+    await voucher.update({
+      product_id: product_id,
+    });
+    // Kirimkan respons sukses dengan harga setelah diskon
+    return res.status(200).json({
+      message: 'Voucher applied successfully',
+      originalPrice: price,
+      discountAmount: discountAmount,
+      finalPrice: finalPrice,
+    });
+  } catch (error) {
+    console.error('Error applying voucher:', error);
+    res.status(500).json({ message: 'Error applying voucher', error: error.message });
+  }
+};
