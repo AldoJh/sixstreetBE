@@ -184,10 +184,10 @@ export const implement_voucher = async (req, res) => {
       });
     }
 
-    // Jika voucher tidak ditemukan di apparel, cek di sneakers dan harga lebih dari 1500000
+    // Jika voucher tidak ditemukan di apparel, cek di sneakers dan harga lebih dari 990000
     if (!voucher && sneakers.includes(product_id)) {
-      if (price <= 1500000) {
-        return res.status(400).json({ message: 'Price must be greater than 1500000 for sneakers products.' });
+      if (price <= 990000) {
+        return res.status(400).json({ message: 'Price must be greater than 990000 for sneakers products.' });
       }
 
       // Menggunakan Op.like untuk memeriksa apakah kategori "sneakers" ada dalam JSON
@@ -202,7 +202,7 @@ export const implement_voucher = async (req, res) => {
     }
 
     if (!voucher && Accessories.includes(product_id)) {
-      if (price <= 1500000) {
+      if (price <= 990000) {
         return res.status(400).json({ message: 'Price must be greater than 1500000 for sneakers products.' });
       }
 
@@ -245,3 +245,4 @@ export const implement_voucher = async (req, res) => {
     res.status(500).json({ message: 'Error applying voucher', error: error.message });
   }
 };
+
