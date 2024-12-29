@@ -6,11 +6,15 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import cron from 'node-cron';
+import { sendEmailReminder } from './controller/user.js';
 
 dotenv.config();
 const app = Express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+cron.schedule('0 0 7 * * *', sendEmailReminder); 
 
 app.use('/upload', Express.static(path.join(__dirname, 'upload')));
 

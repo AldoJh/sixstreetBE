@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import axios from 'axios';
+import cron from 'node-cron';
 
 //function generate random string
 const generateRandomString = (length) => {
@@ -644,6 +645,118 @@ export const calculateCost = async (req, res) => {
   }
 };
 
+
+// Function untuk mengirimkan email pengingat
+export const sendEmailReminder = async (email, subject, text, username) => {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    secure: false,
+    auth: {
+      user: process.env.EMAIL_USERNAME,
+      pass: process.env.EMAIL_PASSWORD,
+    },
+  });
+
+  const mailOptions = {
+    from: process.env.EMAIL_USERNAME,
+    to: email,
+    subject: subject,
+    html: `
+      <div style="font-family: 'Arial', sans-serif; max-width: 600px; margin: auto; padding: 20px;">
+        <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond&display=swap" rel="stylesheet">
+        <header style="text-align: center; padding: 10px; background-color: #333; color: white;">
+          <h1 style="font-family: 'Cormorant Garamond', serif;">${subject}</h1>
+        </header>
+        <main style="padding: 20px; background-color: #f9f9f9;">
+          <h2>Dear ${username},</h2>
+          <p>${text}</p>
+        </main>
+        <footer style="text-align: center; padding: 10px; background-color: #333; color: white;">
+          <p>Thank you for choosing SIXSTREET</p>
+        </footer>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Reminder email sent to:', email);
+  } catch (error) {
+    console.error('Error sending reminder email:', error);
+  }
+};
+
+// Reminder 1st: Kirim pengingat 7 hari setelah registrasi untuk menggunakan voucher
+cron.schedule('0 0 7 * * *', async () => {
+  try {
+    const users = await User.findAll({
+      where: {
+        createdAt: {
+          [Op.lte]: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // Cek pengguna yang terdaftar lebih dari 7 hari
+        },
+      },
+    });
+
+    users.forEach(async (user) => {
+      const vouchers = await Voucher.findAll({
+        where: {
+          user_id: user.id,
+          isUsed: false,
+        },
+      });
+
+      if (vouchers.length > 0) {
+        // Kirim email pengingat
+        await sendEmailReminder(
+          user.email,
+          'Reminder: Gunakan Voucher Anda!',
+          `Halo ${user.username}, Anda memiliki voucher yang belum digunakan. Segera gunakan sebelum kadaluarsa.`,
+          user.username
+        );
+      }
+    });
+  } catch (error) {
+    console.error('Error during the 1st reminder job:', error);
+  }
+});
+
+// Reminder 2nd: Kirim pengingat 3 hari sebelum voucher kadaluarsa
+cron.schedule('0 0 3 * * *', async () => {
+  try {
+    const currentDate = new Date();
+    const expirationDate = new Date(currentDate.getTime() + 3 * 24 * 60 * 60 * 1000); // 3 hari lagi
+
+    const vouchers = await Voucher.findAll({
+      where: {
+        validUntil: {
+          [Op.lte]: expirationDate,
+        },
+        isUsed: false,
+      },
+    });
+
+    vouchers.forEach(async (voucher) => {
+      const user = await User.findOne({
+        where: {
+          id: voucher.user_id,
+        },
+      });
+
+      if (user) {
+        // Kirim email pengingat tentang kadaluarsa voucher
+        await sendEmailReminder(
+          user.email,
+          'Reminder: Voucher Anda Segera Kadaluarsa',
+          `Halo ${user.username}, Voucher Anda dengan kode ${voucher.code} akan kadaluarsa dalam 3 hari. Segera gunakan sebelum kadaluarsa!`,
+          user.username
+        );
+      }
+    });
+  } catch (error) {
+    console.error('Error during the 2nd reminder job:', error);
+  }
+});
+
 // get all vouchers
 export const getVouchers = async (req, res) => {
   const { user_id } = req.body;
@@ -654,3 +767,4 @@ export const getVouchers = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
