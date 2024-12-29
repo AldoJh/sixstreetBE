@@ -27,7 +27,7 @@ const Voucher = db.define(
     applicableProducts: {
       type: DataTypes.STRING
     },
-    cart_id: {
+    product_id: {
         type: DataTypes.INTEGER,
         allowNull: true
     }

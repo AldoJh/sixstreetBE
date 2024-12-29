@@ -1,7 +1,7 @@
 import User from '../model/userModel.js';
 import Cart from '../model/cartModel.js';
 import Voucher from '../model/VoucherModel.js';
-import { Op } from 'sequelize';  // Import Sequelize operators
+import { Op } from 'sequelize'; // Import Sequelize operators
 import NodeCache from 'node-cache';
 
 // Inisialisasi cache dengan waktu kedaluwarsa (misalnya, 1 menit)
@@ -151,25 +151,18 @@ export const deleteAllCart = async (req, res) => {
   }
 };
 
-
 // Implement voucher
 export const implement_voucher = async (req, res) => {
   const { product_id, price } = req.body;
   const { user_id } = req.params;
 
   // Daftar produk untuk kategori apparel
-  const apparel = [
-    18215, 18218, 18210, 18216,
-    18199, 18198, 18209, 18217,
-    8200
-  ];
+  const apparel = [18215, 18218, 18210, 18216, 18199, 18198, 18209, 18217, 8200];
 
   // Daftar produk untuk kategori sneakers
-  const sneakers = [
-    5472, 999, 1013, 12780, 12803,
-    1027, 18710, 7545, 17895, 1013,
-    12794, 7560, 7545, 17895, 1013
-  ];
+  const sneakers = [5472, 999, 1013, 12780, 12803, 1027, 18710, 7545, 17895, 1013, 12794, 7560, 7545, 17895, 1013];
+
+  const Accessories = [7339, 7340, 17860, 1147, 7332, 1143, 10217, 36, 5516, 10230, 12622, 12628, 12632, 15320, 18225, 2835, 10222, 12621, 12626, 12631, 24806, 24807, 1149, 12610, 12611, 10219, 17866, 1139, 1137, 12432, 5429];
 
   try {
     let voucher;
@@ -179,35 +172,50 @@ export const implement_voucher = async (req, res) => {
       if (price <= 990000) {
         return res.status(400).json({ message: 'Price must be greater than 990000 for apparel products.' });
       }
-      
+
       // Menggunakan Op.like untuk memeriksa apakah kategori "apparel" ada dalam JSON
       voucher = await Voucher.findOne({
         where: {
-          user_id: user_id,  // Memastikan voucher untuk user ini
-          applicableProducts: { [Op.like]: '%"apparel"%' },  // Mencari apakah "apparel" ada dalam kolom JSON
-          isUsed: false,  // Voucher harus belum digunakan
-          validUntil: { [Op.gte]: new Date() }  // Voucher harus masih berlaku
-        }
+          user_id: user_id, // Memastikan voucher untuk user ini
+          applicableProducts: { [Op.like]: '%"apparel"%' }, // Mencari apakah "apparel" ada dalam kolom JSON
+          isUsed: false, // Voucher harus belum digunakan
+          validUntil: { [Op.gte]: new Date() }, // Voucher harus masih berlaku
+        },
       });
     }
 
-    // Jika voucher tidak ditemukan di apparel, cek di sneakers dan harga lebih dari 1500000
+    // Jika voucher tidak ditemukan di apparel, cek di sneakers dan harga lebih dari 990000
     if (!voucher && sneakers.includes(product_id)) {
-      if (price <= 1500000) {
+      if (price <= 990000) {
+        return res.status(400).json({ message: 'Price must be greater than 990000 for sneakers products.' });
+      }
+
+      // Menggunakan Op.like untuk memeriksa apakah kategori "sneakers" ada dalam JSON
+      voucher = await Voucher.findOne({
+        where: {
+          user_id: user_id, // Memastikan voucher untuk user ini
+          applicableProducts: { [Op.like]: '%"sneakers"%' }, // Mencari apakah "sneakers" ada dalam kolom JSON
+          isUsed: false, // Voucher harus belum digunakan
+          validUntil: { [Op.gte]: new Date() }, // Voucher harus masih berlaku
+        },
+      });
+    }
+
+    if (!voucher && Accessories.includes(product_id)) {
+      if (price <= 990000) {
         return res.status(400).json({ message: 'Price must be greater than 1500000 for sneakers products.' });
       }
 
       // Menggunakan Op.like untuk memeriksa apakah kategori "sneakers" ada dalam JSON
       voucher = await Voucher.findOne({
         where: {
-          user_id: user_id,  // Memastikan voucher untuk user ini
-          applicableProducts: { [Op.like]: '%"sneakers"%' },  // Mencari apakah "sneakers" ada dalam kolom JSON
-          isUsed: false,  // Voucher harus belum digunakan
-          validUntil: { [Op.gte]: new Date() }  // Voucher harus masih berlaku
-        }
+          user_id: user_id, // Memastikan voucher untuk user ini
+          applicableProducts: { [Op.like]: '%"Accessories"%' }, // Mencari apakah "sneakers" ada dalam kolom JSON
+          isUsed: false, // Voucher harus belum digunakan
+          validUntil: { [Op.gte]: new Date() }, // Voucher harus masih berlaku
+        },
       });
     }
-
     // Jika voucher tidak ditemukan di kedua kategori
     if (!voucher) {
       return res.status(404).json({ message: 'No valid voucher found for this product' });
@@ -220,9 +228,9 @@ export const implement_voucher = async (req, res) => {
     const discountAmount = (price * discountPercentage) / 100;
     const finalPrice = price - discountAmount;
 
-    //update table voucher with product_id 
+    //update table voucher with product_id
     await voucher.update({
-      product_id: product_id, 
+      product_id: product_id,
     });
 
     // Kirimkan respons sukses dengan harga setelah diskon
@@ -238,3 +246,49 @@ export const implement_voucher = async (req, res) => {
   }
 };
 
+// Implement voucher SIXSTREET
+export const implement_voucher_sixstreet = async (req, res) => {
+  const { product_id, price } = req.body;
+  const { user_id } = req.params;
+  // Daftar produk untuk kategori sixstreet
+  const sixstreet = ['SIXTREET'];
+  try {
+    let voucher;
+    // Mengecek apakah product_id ada di kategori sixstreet dan harga lebih dari 990000
+    if (sixstreet.includes(product_id)) {
+      // Menggunakan Op.like untuk memeriksa apakah kategori "sixstreet" ada dalam JSON
+      voucher = await Voucher.findOne({
+        where: {
+          user_id: user_id, // Memastikan voucher untuk user ini
+          applicableProducts: { [Op.like]: '%"Sixstreet"%' }, // Mencari apakah "apparel" ada dalam kolom JSON
+          isUsed: false, // Voucher harus belum digunakan
+          validUntil: { [Op.gte]: new Date() }, // Voucher harus masih berlaku
+        },
+      });
+    }
+
+    // Jika voucher tidak ditemukan di kedua kategori
+    if (!voucher) {
+      return res.status(404).json({ message: 'No valid voucher found for this product' });
+    }
+    // Mengambil discountPercentage dari voucher yang ditemukan
+    const discountPercentage = voucher.discountPercentage;
+    // Menghitung diskon dan harga akhir
+    const discountAmount = (price * discountPercentage) / 100;
+    const finalPrice = price - discountAmount;
+    //update table voucher with product_id
+    await voucher.update({
+      product_id: product_id,
+    });
+    // Kirimkan respons sukses dengan harga setelah diskon
+    return res.status(200).json({
+      message: 'Voucher applied successfully',
+      originalPrice: price,
+      discountAmount: discountAmount,
+      finalPrice: finalPrice,
+    });
+  } catch (error) {
+    console.error('Error applying voucher:', error);
+    res.status(500).json({ message: 'Error applying voucher', error: error.message });
+  }
+};
