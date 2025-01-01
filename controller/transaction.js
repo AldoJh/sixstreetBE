@@ -189,7 +189,20 @@ const cleanProductName = (name) => {
 // Payment Gateway
 // Payment Gateway
 export const paymentGateway = async (req, res) => {
-  const { transaction_id, name, city, sub_district, detail_address, expedition, expedition_services, etd, resi, items, shipping_cost, points_discount = 0 } = req.body;
+  const {
+    transaction_id,
+    name,
+    city,
+    sub_district,
+    detail_address,
+    expedition,
+    expedition_services,
+    etd,
+    resi,
+    items,
+    shipping_cost,
+    points_discount = 0, // Optional parameter untuk discount dari points
+  } = req.body;
 
   const shippingCostNumber = parseInt(shipping_cost);
   const subtotal = items.reduce((acc, item) => {

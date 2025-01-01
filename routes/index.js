@@ -19,6 +19,7 @@ import {
   calculateCost,
   getSubdistricts,
   getVouchers,
+  getVoucherById,
 } from '../controller/user.js';
 import { verifyToken } from '../middleware/verifytoken.js';
 import { refreshToken } from '../controller/refreshtoken.js';
@@ -103,8 +104,9 @@ router.get('/rajasubdistrict/:city_id', getSubdistricts);
 router.post('/rajacost', calculateCost);
 // Voucher
 router.post('/voucher/:user_id', implement_voucher);
-router.post('/voucher', getVouchers);
 router.post('/voucher_sixstreet/:user_id', implement_voucher_sixstreet);
+router.get('/voucher/:user_id', getVoucherById);
+router.post('/voucher', getVouchers);
 // Membership point
 router.get('/membership/:user_id', getMembershipStatus);
 router.post('/points/redeem', redeemPoints);

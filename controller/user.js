@@ -813,3 +813,13 @@ export const getVouchers = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const getVoucherById = async (req, res) => {
+  const { user_id } = req.params;
+  try {
+    const voucher = await Voucher.findAll({ where: { user_id } });
+    res.status(200).json(voucher);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
