@@ -157,7 +157,7 @@ export const implement_voucher = async (req, res) => {
   const { user_id } = req.params;
 
   // Daftar produk untuk kategori apparel
-  const apparel = [18215, 18218, 18210, 18216, 18199, 18198, 18209, 18217, 8200];
+  const apparel = [18215, 18218, 18210, 18216, 18199, 18198, 18209, 18217, 18200];
 
   // Daftar produk untuk kategori sneakers
   const sneakers = [5472, 999, 1013, 12780, 12803, 1027, 18710, 7545, 17895, 1013, 12794, 7560, 7545, 17895, 1013];

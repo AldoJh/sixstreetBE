@@ -14,7 +14,7 @@ const app = Express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-cron.schedule('0 0 7 * * *', sendEmailReminder); 
+cron.schedule('0 0 7 * * *', sendEmailReminder);
 
 app.use('/upload', Express.static(path.join(__dirname, 'upload')));
 
@@ -58,7 +58,7 @@ app.use(Express.json());
 app.use(router);
 
 // Menjalankan server
-const server = app.listen(3000, () => {
+const server = app.listen(3300, () => {
   const port = server.address().port;
   console.log(`Server is running on http://localhost:${port}`);
 });
