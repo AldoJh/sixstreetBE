@@ -3,6 +3,7 @@ import Cart from '../model/cartModel.js';
 import Voucher from '../model/VoucherModel.js';
 import { Op } from 'sequelize'; // Import Sequelize operators
 import NodeCache from 'node-cache';
+import axios from 'axios';
 
 // Inisialisasi cache dengan waktu kedaluwarsa (misalnya, 1 menit)
 const cache = new NodeCache({ stdTTL: 60 }); // Cache berlaku selama 60 detik
@@ -156,69 +157,75 @@ export const implement_voucher = async (req, res) => {
   const { product_id, price } = req.body;
   const { user_id } = req.params;
 
-  // Daftar produk untuk kategori apparel
-  const apparel = [18215, 18218, 18210, 18216, 18199, 18198, 18209, 18217, 8200];
+  // Daftar produk untuk kategori apparel, sneakers, accessories
+  const apparel = [18215, 18218, 18210, 18216, 18199, 18198, 18209, 18217, 18200];
+  const sneakers = [5472, 999, 1013, 12780, 12803, 1027, 18710, 7545, 17895];
+  const accessories = [7339, 7340, 17860, 1147, 7332, 1143, 10217, 36, 5516];
 
-  // Daftar produk untuk kategori sneakers
-  const sneakers = [5472, 999, 1013, 12780, 12803, 1027, 18710, 7545, 17895, 1013, 12794, 7560, 7545, 17895, 1013];
-
-  const Accessories = [7339, 7340, 17860, 1147, 7332, 1143, 10217, 36, 5516, 10230, 12622, 12628, 12632, 15320, 18225, 2835, 10222, 12621, 12626, 12631, 24806, 24807, 1149, 12610, 12611, 10219, 17866, 1139, 1137, 12432, 5429];
+  // Login ke API Jubelio untuk mendapatkan token
+  const email = 'rinaldiihsan0401@gmail.com';
+  const password = 'teamWeb2!';
 
   try {
-    let voucher;
+    // Login untuk mendapatkan token
+    const loginResponse = await axios.post('https://api2.jubelio.com/login', {
+      email: email,
+      password: password,
+    });
 
-    // Mengecek apakah product_id ada di kategori apparel dan harga lebih dari 990000
-    if (apparel.includes(product_id)) {
-      if (price <= 990000) {
-        return res.status(400).json({ message: 'Price must be greater than 990000 for apparel products.' });
-      }
-
-      // Menggunakan Op.like untuk memeriksa apakah kategori "apparel" ada dalam JSON
-      voucher = await Voucher.findOne({
-        where: {
-          user_id: user_id, // Memastikan voucher untuk user ini
-          applicableProducts: { [Op.like]: '%"apparel"%' }, // Mencari apakah "apparel" ada dalam kolom JSON
-          isUsed: false, // Voucher harus belum digunakan
-          validUntil: { [Op.gte]: new Date() }, // Voucher harus masih berlaku
-        },
-      });
+    if (loginResponse.status !== 200) {
+      return res.status(401).json({ message: 'Gagal login ke API Jubelio.' });
     }
 
-    // Jika voucher tidak ditemukan di apparel, cek di sneakers dan harga lebih dari 990000
-    if (!voucher && sneakers.includes(product_id)) {
-      if (price <= 990000) {
-        return res.status(400).json({ message: 'Price must be greater than 990000 for sneakers products.' });
-      }
-
-      // Menggunakan Op.like untuk memeriksa apakah kategori "sneakers" ada dalam JSON
-      voucher = await Voucher.findOne({
-        where: {
-          user_id: user_id, // Memastikan voucher untuk user ini
-          applicableProducts: { [Op.like]: '%"sneakers"%' }, // Mencari apakah "sneakers" ada dalam kolom JSON
-          isUsed: false, // Voucher harus belum digunakan
-          validUntil: { [Op.gte]: new Date() }, // Voucher harus masih berlaku
-        },
-      });
+    if (!loginResponse.data.token) {
+      return res.status(401).json({ message: 'Token tidak ditemukan setelah login ke API Jubelio.' });
     }
 
-    if (!voucher && Accessories.includes(product_id)) {
-      if (price <= 990000) {
-        return res.status(400).json({ message: 'Price must be greater than 1500000 for sneakers products.' });
-      }
+    const token = loginResponse.data.token;
 
-      // Menggunakan Op.like untuk memeriksa apakah kategori "sneakers" ada dalam JSON
-      voucher = await Voucher.findOne({
-        where: {
-          user_id: user_id, // Memastikan voucher untuk user ini
-          applicableProducts: { [Op.like]: '%"Accessories"%' }, // Mencari apakah "sneakers" ada dalam kolom JSON
-          isUsed: false, // Voucher harus belum digunakan
-          validUntil: { [Op.gte]: new Date() }, // Voucher harus masih berlaku
-        },
-      });
+    // Ambil data produk berdasarkan product_id dari API Jubelio
+    const productResponse = await axios.get(`https://api2.jubelio.com/inventory/items/${product_id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (productResponse.status !== 200) {
+      return res.status(404).json({ message: 'Gagal mengambil data produk dari API Jubelio.' });
     }
-    // Jika voucher tidak ditemukan di kedua kategori
+
+    const productData = productResponse.data;
+    const category_id = productData.item_category_id;
+
+    // Validasi kategori berdasarkan id
+    let category = '';
+
+    if (apparel.includes(category_id)) {
+      category = 'apparel';
+    } else if (sneakers.includes(category_id)) {
+      category = 'sneakers';
+    } else if (accessories.includes(category_id)) {
+      category = 'accessories';
+    }
+
+    // Cek jika kategori mengandung kata "sixstreet"
+    if (productData.item_name.toLowerCase().includes('sixstreet')) {
+      return res.status(400).json({ message: 'Voucher tidak dapat diterapkan pada produk Sixstreet.' });
+    }
+
+    // Mencari voucher berdasarkan kategori yang terpilih
+    const voucher = await Voucher.findOne({
+      where: {
+        user_id: user_id,
+        isUsed: false,
+        validUntil: { [Op.gte]: new Date() },
+        applicableProducts: category,
+      },
+    });
+
     if (!voucher) {
-      return res.status(404).json({ message: 'No valid voucher found for this product' });
+      return res.status(404).json({ message: 'Voucher yang valid untuk kategori ini tidak ditemukan.' });
     }
 
     // Mengambil discountPercentage dari voucher yang ditemukan
@@ -228,14 +235,13 @@ export const implement_voucher = async (req, res) => {
     const discountAmount = (price * discountPercentage) / 100;
     const finalPrice = price - discountAmount;
 
-    //update table voucher with product_id
+    // Update table voucher dengan product_id
     await voucher.update({
       product_id: product_id,
     });
 
-    // Kirimkan respons sukses dengan harga setelah diskon
     return res.status(200).json({
-      message: 'Voucher applied successfully',
+      message: 'Voucher berhasil diterapkan',
       originalPrice: price,
       discountAmount: discountAmount,
       finalPrice: finalPrice,
@@ -250,45 +256,85 @@ export const implement_voucher = async (req, res) => {
 export const implement_voucher_sixstreet = async (req, res) => {
   const { product_id, price } = req.body;
   const { user_id } = req.params;
-  // Daftar produk untuk kategori sixstreet
-  const sixstreet = ['SIXTREET'];
+
+  // Login ke API Jubelio untuk mendapatkan token
+  const email = 'rinaldiihsan0401@gmail.com';
+  const password = 'teamWeb2!';
+
   try {
-    let voucher;
-    // Mengecek apakah product_id ada di kategori sixstreet dan harga lebih dari 990000
-    if (sixstreet.includes(product_id)) {
-      // Menggunakan Op.like untuk memeriksa apakah kategori "sixstreet" ada dalam JSON
-      voucher = await Voucher.findOne({
-        where: {
-          user_id: user_id, // Memastikan voucher untuk user ini
-          applicableProducts: { [Op.like]: '%"Sixstreet"%' }, // Mencari apakah "apparel" ada dalam kolom JSON
-          isUsed: false, // Voucher harus belum digunakan
-          validUntil: { [Op.gte]: new Date() }, // Voucher harus masih berlaku
-        },
-      });
+    // Login untuk mendapatkan token
+    const loginResponse = await axios.post('https://api2.jubelio.com/login', {
+      email: email,
+      password: password,
+    });
+
+    if (loginResponse.status !== 200) {
+      return res.status(401).json({ message: 'Gagal login ke API Jubelio.' });
     }
 
-    // Jika voucher tidak ditemukan di kedua kategori
-    if (!voucher) {
-      return res.status(404).json({ message: 'No valid voucher found for this product' });
+    if (!loginResponse.data.token) {
+      return res.status(401).json({ message: 'Token tidak ditemukan setelah login ke API Jubelio.' });
     }
+
+    const token = loginResponse.data.token;
+
+    // Ambil data produk berdasarkan product_id dari API Jubelio
+    const productResponse = await axios.get(`https://api2.jubelio.com/inventory/items/${product_id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (productResponse.status !== 200) {
+      return res.status(404).json({ message: 'Gagal mengambil data produk dari API Jubelio.' });
+    }
+
+    const productData = productResponse.data;
+
+    // Validasi produk berdasarkan nama produk mengandung "sixstreet"
+    if (!productData.item_name.toLowerCase().includes('sixstreet')) {
+      return res.status(400).json({ message: 'Produk bukan milik Sixstreet.' });
+    }
+
+    // Mencari voucher spesifik untuk Sixstreet
+    const voucher = await Voucher.findOne({
+      where: {
+        user_id: user_id,
+        isUsed: false,
+        validUntil: { [Op.gte]: new Date() },
+        applicableProducts: 'sixstreet', // Pastikan ini sesuai dengan definisi di model Voucher
+      },
+    });
+
+    if (!voucher) {
+      return res.status(404).json({ message: 'Voucher yang valid untuk Sixstreet tidak ditemukan.' });
+    }
+
     // Mengambil discountPercentage dari voucher yang ditemukan
     const discountPercentage = voucher.discountPercentage;
+
     // Menghitung diskon dan harga akhir
     const discountAmount = (price * discountPercentage) / 100;
     const finalPrice = price - discountAmount;
-    //update table voucher with product_id
+
+    // Update table voucher dengan product_id
     await voucher.update({
       product_id: product_id,
+      isUsed: true, // Tandai voucher sebagai sudah digunakan
     });
-    // Kirimkan respons sukses dengan harga setelah diskon
+
     return res.status(200).json({
-      message: 'Voucher applied successfully',
+      message: 'Voucher Sixstreet berhasil diterapkan',
       originalPrice: price,
       discountAmount: discountAmount,
       finalPrice: finalPrice,
     });
   } catch (error) {
-    console.error('Error applying voucher:', error);
-    res.status(500).json({ message: 'Error applying voucher', error: error.message });
+    console.error('Error applying Sixstreet voucher:', error);
+    res.status(500).json({
+      message: 'Error applying Sixstreet voucher',
+      error: error.message,
+    });
   }
 };

@@ -59,7 +59,7 @@ const createUserVouchers = async (userId) => {
         discountPercentage: discountPercentages[i % discountPercentages.length],
         isUsed: false,
         validUntil,
-        applicableProducts: JSON.stringify(products[i]),
+        applicableProducts: products[i],
       });
 
       vouchers.push(voucher);
@@ -295,7 +295,7 @@ export const verifyOTP = async (req, res) => {
         discountPercentage,
         isUsed: false,
         validUntil,
-        applicableProducts: JSON.stringify([category]), // Menyimpan produk yang berlaku untuk voucher ini
+        applicableProducts: category, // Menyimpan produk yang berlaku untuk voucher ini
       });
       vouchers.push(voucher);
     }

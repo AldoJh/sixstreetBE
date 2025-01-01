@@ -187,22 +187,8 @@ const cleanProductName = (name) => {
 };
 
 // Payment Gateway
-// Payment Gateway
 export const paymentGateway = async (req, res) => {
-  const {
-    transaction_id,
-    name,
-    city,
-    sub_district,
-    detail_address,
-    expedition,
-    expedition_services,
-    etd,
-    resi,
-    items,
-    shipping_cost,
-    points_discount = 0, // Optional parameter untuk discount dari points
-  } = req.body;
+  const { transaction_id, name, city, sub_district, detail_address, expedition, expedition_services, etd, resi, items, shipping_cost, points_discount = 0, voucher_discount = 0 } = req.body;
 
   const shippingCostNumber = parseInt(shipping_cost);
   const subtotal = items.reduce((acc, item) => {
@@ -211,7 +197,7 @@ export const paymentGateway = async (req, res) => {
   }, 0);
 
   // Total akhir sudah termasuk shipping dan dikurangi points (jika ada)
-  const total = Math.max(0, Math.round(subtotal + shippingCostNumber - points_discount));
+  const total = Math.max(0, Math.round(subtotal + shippingCostNumber - points_discount - voucher_discount));
 
   if (!transaction_id || !items || !items.length) {
     return res.status(400).json({ message: 'Transaction ID, total, and items are required' });
@@ -244,6 +230,18 @@ export const paymentGateway = async (req, res) => {
                 price: -points_discount,
                 quantity: 1,
                 name: 'Diskon Points',
+              },
+            ]
+          : []),
+
+        // Jika ada voucher discount, tambahkan sebagai item negatif
+        ...(voucher_discount > 0
+          ? [
+              {
+                id: 'VOUCHER_DISCOUNT',
+                price: -voucher_discount,
+                quantity: 1,
+                name: 'Diskon Voucher',
               },
             ]
           : []),
