@@ -464,14 +464,14 @@ export const getAddress = async (req, res) => {
 
     const addresses = await Address.findAll({
       where: { user_id },
+      order: [['is_primary', 'DESC']],
     });
 
     if (!addresses.length) {
-      res.status(200).json({
+      return res.status(200).json({
         addresses: [],
         fullName: user ? user.fullName : null,
       });
-      return;
     }
 
     const response = addresses.map((address) => ({
@@ -479,8 +479,10 @@ export const getAddress = async (req, res) => {
       fullName: user.fullName,
     }));
 
-    console.log('Response:', response);
-    res.status(200).json({ addresses: response });
+    res.status(200).json({
+      addresses: response,
+      fullName: user.fullName,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -489,44 +491,99 @@ export const getAddress = async (req, res) => {
 // Function untuk menambahkan alamat baru
 export const addAddress = async (req, res) => {
   const { user_id } = req.params;
-  const { address } = req.body;
+  const { province_id, province_name, city_id, city_name, city_type, subdistrict_id, subdistrict_name, kelurahan, detail_address, kodePos } = req.body;
+
   try {
+    const existingAddressCount = await Address.count({ where: { user_id } });
+    const is_primary = existingAddressCount === 0;
+
+    if (is_primary) {
+      await Address.update({ is_primary: false }, { where: { user_id, is_primary: true } });
+    }
+
     const newAddress = await Address.create({
       user_id,
-      address,
+      province_id,
+      province_name,
+      city_id,
+      city_name,
+      city_type,
+      subdistrict_id,
+      subdistrict_name,
+      kelurahan,
+      detail_address,
+      postal_code: kodePos,
+      is_primary,
     });
-    res.status(200).json({ message: 'Address successfully added', newAddress });
+
+    res.status(201).json({
+      message: 'Address successfully added',
+      newAddress,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-//function delete address
-export const deleteAddress = async (req, res) => {
-  const { user_id, id } = req.params;
-  try {
-    const address = await Address.findOne({ where: { user_id, id } });
-    if (!address) {
-      return res.status(404).json({ message: 'Address not found' });
-    }
-    await address.destroy();
-    res.status(200).json({ message: 'Address deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-//update address
 export const updateAddress = async (req, res) => {
   const { user_id, id } = req.params;
-  const { newAddress } = req.body;
+  const { province_id, province_name, city_id, city_name, city_type, subdistrict_id, subdistrict_name, kelurahan, detail_address, kodePos, is_primary } = req.body;
+
+  try {
+    const existingAddress = await Address.findOne({ where: { user_id, id } });
+
+    if (!existingAddress) {
+      return res.status(404).json({ message: 'Address not found' });
+    }
+
+    if (is_primary) {
+      await Address.update({ is_primary: false }, { where: { user_id, is_primary: true } });
+    }
+
+    const updatedAddress = await existingAddress.update({
+      province_id,
+      province_name,
+      city_id,
+      city_name,
+      city_type,
+      subdistrict_id,
+      subdistrict_name,
+      kelurahan,
+      detail_address,
+      postal_code: kodePos,
+      is_primary: is_primary || existingAddress.is_primary,
+    });
+
+    res.status(200).json(updatedAddress);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Hapus alamat
+export const deleteAddress = async (req, res) => {
+  const { user_id, id } = req.params;
+
   try {
     const address = await Address.findOne({ where: { user_id, id } });
+
     if (!address) {
       return res.status(404).json({ message: 'Address not found' });
     }
-    const updatedAddress = await address.update({ address: newAddress });
-    res.status(200).json(updatedAddress);
+
+    await address.destroy();
+
+    // Jika alamat yang dihapus adalah alamat utama, pilih alamat pertama sebagai alamat utama
+    const remainingAddresses = await Address.findAll({
+      where: { user_id },
+      order: [['createdAt', 'ASC']],
+    });
+
+    if (remainingAddresses.length > 0) {
+      await remainingAddresses[0].update({ is_primary: true });
+    }
+
+    res.status(200).json({ message: 'Address successfully deleted' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -645,9 +702,8 @@ export const calculateCost = async (req, res) => {
   }
 };
 
-
 // Function untuk mengirimkan email pengingat
-export const sendEmailReminder = async (email, subject, text, username) => {
+export const sendEmailReminder = async (email, subject, text, fullName) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     secure: false,
@@ -668,7 +724,7 @@ export const sendEmailReminder = async (email, subject, text, username) => {
           <h1 style="font-family: 'Cormorant Garamond', serif;">${subject}</h1>
         </header>
         <main style="padding: 20px; background-color: #f9f9f9;">
-          <h2>Dear ${username},</h2>
+          <h2>Dear ${fullName},</h2>
           <p>${text}</p>
         </main>
         <footer style="text-align: center; padding: 10px; background-color: #333; color: white;">
@@ -707,12 +763,7 @@ cron.schedule('0 0 7 * * *', async () => {
 
       if (vouchers.length > 0) {
         // Kirim email pengingat
-        await sendEmailReminder(
-          user.email,
-          'Reminder: Gunakan Voucher Anda!',
-          `Halo ${user.username}, Anda memiliki voucher yang belum digunakan. Segera gunakan sebelum kadaluarsa.`,
-          user.username
-        );
+        await sendEmailReminder(user.email, 'Reminder: Gunakan Voucher Anda!', `Halo ${user.fullName}, Anda memiliki voucher yang belum digunakan. Segera gunakan sebelum kadaluarsa.`, user.fullName);
       }
     });
   } catch (error) {
@@ -744,12 +795,7 @@ cron.schedule('0 0 3 * * *', async () => {
 
       if (user) {
         // Kirim email pengingat tentang kadaluarsa voucher
-        await sendEmailReminder(
-          user.email,
-          'Reminder: Voucher Anda Segera Kadaluarsa',
-          `Halo ${user.username}, Voucher Anda dengan kode ${voucher.code} akan kadaluarsa dalam 3 hari. Segera gunakan sebelum kadaluarsa!`,
-          user.username
-        );
+        await sendEmailReminder(user.email, 'Reminder: Voucher Anda Segera Kadaluarsa', `Halo ${user.fullName}, Voucher Anda dengan kode ${voucher.code} akan kadaluarsa dalam 3 hari. Segera gunakan sebelum kadaluarsa!`, user.fullName);
       }
     });
   } catch (error) {
@@ -767,4 +813,3 @@ export const getVouchers = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-

@@ -25,6 +25,7 @@ import { refreshToken } from '../controller/refreshtoken.js';
 import { createNews, getNews, updateNews, findnews, deleteNews, getNewsById, getNewsByJudul } from '../controller/news.js';
 import { getCart, addToCart, updateCart, deleteCart, deleteAllCart, implement_voucher, implement_voucher_sixstreet } from '../controller/cart.js';
 import { getTransaction, getTransactionByUuid, createTransaction, updateTransaction, deleteTransaction, paymentGateway, getAllTransactions, transactionNotification, updateTransactionByUuid } from '../controller/transaction.js';
+import { getMembershipStatus, redeemPoints, processTransactionPoints, getPointsHistory, sendMonthlyReminder } from '../controller/membership.js';
 import { sendEmail, cek_password } from '../controller/email.js';
 const router = Express.Router();
 import multer from 'multer';
@@ -104,5 +105,11 @@ router.post('/rajacost', calculateCost);
 router.post('/voucher/:user_id', implement_voucher);
 router.post('/voucher', getVouchers);
 router.post('/voucher_sixstreet/:user_id', implement_voucher_sixstreet);
+// Membership point
+router.get('/membership/:user_id', getMembershipStatus);
+router.post('/points/redeem', redeemPoints);
+router.post('/points/process/:transaction_uuid', processTransactionPoints);
+router.get('/points/history/:user_id', getPointsHistory);
+router.post('/points/send-reminder', sendMonthlyReminder);
 
 export default router;

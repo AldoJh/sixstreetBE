@@ -187,15 +187,18 @@ const cleanProductName = (name) => {
 };
 
 // Payment Gateway
+// Payment Gateway
 export const paymentGateway = async (req, res) => {
-  const { transaction_id, name, city, sub_district, detail_address, expedition, expedition_services, etd, resi, items, shipping_cost } = req.body;
+  const { transaction_id, name, city, sub_district, detail_address, expedition, expedition_services, etd, resi, items, shipping_cost, points_discount = 0 } = req.body;
 
   const shippingCostNumber = parseInt(shipping_cost);
   const subtotal = items.reduce((acc, item) => {
     const itemTotal = parseFloat((item.price * item.quantity).toFixed(2));
     return acc + itemTotal;
   }, 0);
-  const total = Math.round(subtotal + shippingCostNumber);
+
+  // Total akhir sudah termasuk shipping dan dikurangi points (jika ada)
+  const total = Math.max(0, Math.round(subtotal + shippingCostNumber - points_discount));
 
   if (!transaction_id || !items || !items.length) {
     return res.status(400).json({ message: 'Transaction ID, total, and items are required' });
@@ -220,6 +223,17 @@ export const paymentGateway = async (req, res) => {
           quantity: 1,
           name: 'Biaya Pengiriman',
         },
+        // Jika ada points discount, tambahkan sebagai item negatif
+        ...(points_discount > 0
+          ? [
+              {
+                id: 'POINTS_DISCOUNT',
+                price: -points_discount,
+                quantity: 1,
+                name: 'Diskon Points',
+              },
+            ]
+          : []),
       ],
       customer_details: {
         first_name: name,
