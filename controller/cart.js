@@ -210,8 +210,8 @@ export const implement_voucher = async (req, res) => {
     }
 
     // Cek jika kategori mengandung kata "sixstreet"
-    if (productData.item_name.toLowerCase().includes('sixstreet')) {
-      return res.status(400).json({ message: 'Voucher tidak dapat diterapkan pada produk Sixstreet.' });
+    if (category && category.toLowerCase().includes('sixstreet')) {
+      return res.status(400).json({ message: 'Kategori tidak dapat menggunakan voucher karena mengandung "sixstreet".' });
     }
 
     // Mencari voucher berdasarkan kategori yang terpilih

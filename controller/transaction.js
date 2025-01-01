@@ -132,12 +132,34 @@ export const updateTransactionByUuid = async (req, res) => {
 
   try {
     const transaction = await Transaction.update(
-      { name, city, sub_district, detail_address, expedition, expedition_services, etd, resi, product_id, quantity, product_price, product_name, product_size, total, status },
-      { where: { user_id, transaction_uuid } }
+      {
+        name,
+        city,
+        sub_district,
+        detail_address,
+        expedition,
+        expedition_services,
+        etd,
+        resi,
+        product_id,
+        quantity,
+        product_price,
+        product_name,
+        product_size,
+        total,
+        status,
+      },
+      {
+        where: { user_id, transaction_uuid },
+      }
     );
+
     res.json({ message: 'Transaction updated successfully' });
   } catch (error) {
-    res.status(500).json({ message: 'Error updating transaction', error: error.message });
+    res.status(500).json({
+      message: 'Error updating transaction',
+      error: error.message,
+    });
   }
 };
 
