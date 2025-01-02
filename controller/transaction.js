@@ -310,7 +310,6 @@ const updateStatusBaseOnMidtransResponse = async (transaction_uuid, data) => {
         updatedTransaction = await Transaction.update({ status: 'PAID' }, { where: { transaction_uuid } });
         const product = await Transaction.findOne({ where: { transaction_uuid } });
         const product_id = product ? product.product_id : null;
-        const updateVoucher = await Voucher.update({ isUsed: 1 }, { where: { product_id } });
       }
     } else if (transactionStatus === 'settlement') {
       updatedTransaction = await Transaction.update({ status: 'PAID' }, { where: { transaction_uuid } });

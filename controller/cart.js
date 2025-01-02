@@ -157,20 +157,16 @@ export const implement_voucher = async (req, res) => {
   const { product_id, price } = req.body;
   const { user_id } = req.params;
 
-  // Daftar produk untuk kategori apparel, sneakers, accessories
+  // Daftar produk untuk kategori
   const apparel = [18215, 18218, 18210, 18216, 18199, 18198, 18209, 18217, 18200];
   const sneakers = [5472, 999, 1013, 12780, 12803, 1027, 18710, 7545, 17895];
   const accessories = [7339, 7340, 17860, 1147, 7332, 1143, 10217, 36, 5516];
 
-  // Login ke API Jubelio untuk mendapatkan token
-  const email = 'rinaldiihsan0401@gmail.com';
-  const password = 'teamWeb2!';
-
   try {
     // Login untuk mendapatkan token
     const loginResponse = await axios.post('https://api2.jubelio.com/login', {
-      email: email,
-      password: password,
+      email: 'rinaldiihsan0401@gmail.com',
+      password: 'teamWeb2!',
     });
 
     if (loginResponse.status !== 200) {
@@ -183,7 +179,7 @@ export const implement_voucher = async (req, res) => {
 
     const token = loginResponse.data.token;
 
-    // Ambil data produk berdasarkan product_id dari API Jubelio
+    // Ambil data produk
     const productResponse = await axios.get(`https://api2.jubelio.com/inventory/items/${product_id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -198,9 +194,8 @@ export const implement_voucher = async (req, res) => {
     const productData = productResponse.data;
     const category_id = productData.item_category_id;
 
-    // Validasi kategori berdasarkan id
+    // Validasi kategori
     let category = '';
-
     if (apparel.includes(category_id)) {
       category = 'apparel';
     } else if (sneakers.includes(category_id)) {
@@ -209,12 +204,12 @@ export const implement_voucher = async (req, res) => {
       category = 'accessories';
     }
 
-    // Cek jika kategori mengandung kata "sixstreet"
+    // Cek sixstreet
     if (category && category.toLowerCase().includes('sixstreet')) {
       return res.status(400).json({ message: 'Kategori tidak dapat menggunakan voucher karena mengandung "sixstreet".' });
     }
 
-    // Mencari voucher berdasarkan kategori yang terpilih
+    // Cari voucher
     const voucher = await Voucher.findOne({
       where: {
         user_id: user_id,
@@ -228,17 +223,19 @@ export const implement_voucher = async (req, res) => {
       return res.status(404).json({ message: 'Voucher yang valid untuk kategori ini tidak ditemukan.' });
     }
 
-    // Mengambil discountPercentage dari voucher yang ditemukan
+    // Hitung diskon
     const discountPercentage = voucher.discountPercentage;
-
-    // Menghitung diskon dan harga akhir
     const discountAmount = (price * discountPercentage) / 100;
     const finalPrice = price - discountAmount;
 
-    // Update table voucher dengan product_id
-    await voucher.update({
-      product_id: product_id,
-    });
+    // Update voucher isUsed dan product_id
+    await Promise.all([
+      voucher.update({
+        product_id: product_id,
+        isUsed: true,
+      }),
+      Voucher.update({ isUsed: 1 }, { where: { product_id } }),
+    ]);
 
     return res.status(200).json({
       message: 'Voucher berhasil diterapkan',
@@ -303,7 +300,7 @@ export const implement_voucher_sixstreet = async (req, res) => {
         user_id: user_id,
         isUsed: false,
         validUntil: { [Op.gte]: new Date() },
-        applicableProducts: 'sixstreet', // Pastikan ini sesuai dengan definisi di model Voucher
+        applicableProducts: 'sixstreet',
       },
     });
 
@@ -318,11 +315,14 @@ export const implement_voucher_sixstreet = async (req, res) => {
     const discountAmount = (price * discountPercentage) / 100;
     const finalPrice = price - discountAmount;
 
-    // Update table voucher dengan product_id
-    await voucher.update({
-      product_id: product_id,
-      isUsed: true, // Tandai voucher sebagai sudah digunakan
-    });
+    // Update voucher isUsed dan product_id
+    await Promise.all([
+      voucher.update({
+        product_id: product_id,
+        isUsed: true,
+      }),
+      Voucher.update({ isUsed: 1 }, { where: { product_id } }),
+    ]);
 
     return res.status(200).json({
       message: 'Voucher Sixstreet berhasil diterapkan',
