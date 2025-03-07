@@ -254,46 +254,7 @@ export const implement_voucher_sixstreet = async (req, res) => {
   const { product_id, price } = req.body;
   const { user_id } = req.params;
 
-  // Login ke API Jubelio untuk mendapatkan token
-  const email = 'rinaldiihsan0401@gmail.com';
-  const password = 'teamWeb2!';
-
   try {
-    // Login untuk mendapatkan token
-    const loginResponse = await axios.post('https://api2.jubelio.com/login', {
-      email: email,
-      password: password,
-    });
-
-    if (loginResponse.status !== 200) {
-      return res.status(401).json({ message: 'Gagal login ke API Jubelio.' });
-    }
-
-    if (!loginResponse.data.token) {
-      return res.status(401).json({ message: 'Token tidak ditemukan setelah login ke API Jubelio.' });
-    }
-
-    const token = loginResponse.data.token;
-
-    // Ambil data produk berdasarkan product_id dari API Jubelio
-    const productResponse = await axios.get(`https://api2.jubelio.com/inventory/items/${product_id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (productResponse.status !== 200) {
-      return res.status(404).json({ message: 'Gagal mengambil data produk dari API Jubelio.' });
-    }
-
-    const productData = productResponse.data;
-
-    // Validasi produk berdasarkan nama produk mengandung "sixstreet"
-    if (!productData.item_name.toLowerCase().includes('sixstreet')) {
-      return res.status(400).json({ message: 'Produk bukan milik Sixstreet.' });
-    }
-
     // Mencari voucher spesifik untuk Sixstreet
     const voucher = await Voucher.findOne({
       where: {
@@ -305,17 +266,17 @@ export const implement_voucher_sixstreet = async (req, res) => {
     });
 
     if (!voucher) {
-      return res.status(404).json({ message: 'Voucher yang valid untuk Sixstreet tidak ditemukan.' });
+      return res.status(404).json({
+        message: 'Voucher yang valid untuk Sixstreet tidak ditemukan.',
+      });
     }
 
-    // Mengambil discountPercentage dari voucher yang ditemukan
+    // Hitung diskon dan harga akhir
     const discountPercentage = voucher.discountPercentage;
-
-    // Menghitung diskon dan harga akhir
     const discountAmount = (price * discountPercentage) / 100;
     const finalPrice = price - discountAmount;
 
-    // Update voucher isUsed dan product_id
+    // Update voucher
     await Promise.all([
       voucher.update({
         product_id: product_id,
@@ -331,7 +292,10 @@ export const implement_voucher_sixstreet = async (req, res) => {
       finalPrice: finalPrice,
     });
   } catch (error) {
-    console.error('Error applying Sixstreet voucher:', error);
+    console.error('Error detail:', {
+      message: error.message,
+      stack: error.stack,
+    });
     res.status(500).json({
       message: 'Error applying Sixstreet voucher',
       error: error.message,
