@@ -20,6 +20,7 @@ import {
   getSubdistricts,
   getVouchers,
   getVoucherById,
+  subscribeNewsletter,
 } from '../controller/user.js';
 import { verifyToken } from '../middleware/verifytoken.js';
 import { refreshToken } from '../controller/refreshtoken.js';
@@ -107,6 +108,8 @@ router.post('/voucher/:user_id', implement_voucher);
 router.post('/voucher_sixstreet/:user_id', implement_voucher_sixstreet);
 router.get('/voucher/:user_id', getVoucherById);
 router.post('/voucher', getVouchers);
+// Newsletter route
+router.post('/newsletter', subscribeNewsletter);
 // Membership point
 router.get('/membership/:user_id', getMembershipStatus);
 router.post('/points/redeem', redeemPoints);

@@ -823,3 +823,119 @@ export const getVoucherById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Function untuk newsletter dan ajakan registrasi (tanpa menyimpan ke database)
+export const subscribeNewsletter = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+
+  try {
+    // Validasi format email sederhana
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Invalid email format' });
+    }
+
+    // Cek apakah email sudah terdaftar sebagai user
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already registered as a user' });
+    }
+
+    // Kirim email ajakan pendaftaran
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      secure: false,
+      auth: {
+        user: process.env.EMAIL_USERNAME,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+
+    // Encode email untuk digunakan di URL
+    const encodedEmail = encodeURIComponent(email);
+
+    const invitationMailOptions = {
+      from: `"SIXSTREET" <${process.env.EMAIL_USERNAME}>`, // Nama pengirim yang jelas
+      to: email,
+      subject: 'Your Special Welcome Gift from SIXSTREET',
+      replyTo: process.env.EMAIL_USERNAME,
+      priority: 'high',
+      headers: {
+        'X-Priority': '1',
+        'X-MSMail-Priority': 'High',
+        Importance: 'High',
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      },
+      html: `
+        <div style="font-family: 'Arial', sans-serif; max-width: 600px; margin: auto; padding: 20px;">
+          <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond&display=swap" rel="stylesheet">
+          <header style="text-align: center; padding: 10px; background-color: #333; color: white;">
+            <h1 style="font-family: 'Cormorant Garamond', serif;">SIXSTREET</h1>
+          </header>
+          
+          <main style="padding: 20px; background-color: #f9f9f9; text-align: center;">
+            <h2 style="font-size: 24px; color: #333; margin-bottom: 5px; text-align: center;">Welcome Gift Awaits You</h2>
+            <p style="font-size: 16px; margin-top: 10px; margin-bottom: 20px; text-align: center;">Sign up and receive your first voucher</p>
+            
+            <div style="background-color: #f0f0f0; padding: 15px; margin: 20px 0; border-radius: 5px;">
+              <h3 style="color: #d32f2f; font-size: 20px; margin: 5px 0; text-align: center;">Discount up to 50% OFF</h3>
+              <p style="font-style: italic; font-size: 14px; text-align: center;">*minimum purchase of Rp 990.000</p>
+            </div>
+            
+            <table role="presentation" style="margin: 30px auto; border-collapse: collapse;">
+              <tr>
+                <td style="background-color: #333; border-radius: 4px;">
+                  <a href="http://localhost:5173/register?email=${encodedEmail}" 
+                    style="background-color: #333; color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 16px; display: inline-block;">
+                    CLAIM NOW
+                  </a>
+                </td>
+              </tr>
+            </table>
+            
+            <!-- Tambahan konten legitimate -->
+            <div style="border-top: 1px solid #ddd; padding-top: 15px; margin-top: 25px; text-align: left;">
+              <p style="font-size: 14px; color: #666;">
+                SIXSTREET is a premium fashion destination offering the latest trends in apparel, 
+                footwear, and accessories. With our curated collections and exclusive brands, 
+                we help you express your unique style.
+              </p>
+            </div>
+          </main>
+          
+          <footer style="text-align: center; padding: 10px; background-color: #333; color: white;">
+            <p style="margin-bottom: 10px; color: #f0f0f0">© ${new Date().getFullYear()} SIXSTREET. All rights reserved.</p>
+            
+            <!-- Social media links (placeholder) -->
+            <div style="margin: 10px 0;">
+              <a href="https://facebook.com/sixstreet" style="color: white; margin: 0 5px; text-decoration: none;">Facebook</a> |
+              <a href="https://instagram.com/sixstreet" style="color: white; margin: 0 5px; text-decoration: none;">Instagram</a> |
+              <a href="https://twitter.com/sixstreet" style="color: white; margin: 0 5px; text-decoration: none;">Twitter</a>
+            </div>
+            
+            <p style="font-size: 11px; color: #aaa; margin-top: 10px;">
+              You received this email because you expressed interest in SIXSTREET offers and products.
+            </p>
+          </footer>
+        </div>
+      `,
+    };
+
+    try {
+      // Kirim email ajakan
+      await transporter.sendMail(invitationMailOptions);
+      console.log('Newsletter invitation email sent successfully to:', email);
+      res.status(200).json({ message: 'Invitation email sent successfully!' });
+    } catch (emailError) {
+      console.error('Error sending invitation email:', emailError);
+      res.status(500).json({ message: 'Failed to send invitation email', error: emailError.message });
+    }
+  } catch (error) {
+    console.error('Error in newsletter subscription:', error);
+    res.status(500).json({ message: 'Subscription failed', error: error.message });
+  }
+};
