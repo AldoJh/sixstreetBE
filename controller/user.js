@@ -412,12 +412,42 @@ export const forgotPassword = async (req, res) => {
       from: process.env.EMAIL_USERNAME,
       to: email,
       subject: 'Forgot Password',
-      text: `link Ubah Password http://localhost:3000/changePassword`, // Pastikan 'text' menggunakan huruf kecil
+      html: `
+        <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: 'Arial', sans-serif; color: #333333; border: 1px solid #e0e0e0; border-radius: 5px;">
+          <div style="text-align: center; margin-bottom: 20px; padding: 20px; background-color: #333333; border-radius: 4px;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: bold;">SIXSTREET</h1>
+          </div>
+          
+          <div style="padding: 20px; background-color: #f9f9f9; border-radius: 4px; margin-bottom: 20px;">
+            <p style="margin-top: 0; margin-bottom: 15px; font-size: 16px; line-height: 1.5;">Kami menerima permintaan untuk reset password akun Anda.</p>
+            <p style="margin-top: 0; margin-bottom: 15px; font-size: 16px; line-height: 1.5;">Untuk melanjutkan, silakan klik tombol di bawah ini:</p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="http://localhost:5137/changePassword" style="display: inline-block; padding: 12px 24px; background-color: #333333; color: #ffffff; text-decoration: none; font-weight: bold; border-radius: 4px; font-size: 16px;">Reset Password</a>
+            </div>
+            
+            <p style="margin-top: 0; margin-bottom: 15px; font-size: 16px; line-height: 1.5;">Jika Anda tidak meminta reset password, Anda dapat mengabaikan email ini dan tidak ada perubahan yang akan dibuat pada akun Anda.</p>
+            
+            <p style="margin-top: 0; margin-bottom: 15px; font-size: 16px; line-height: 1.5;">Jika tombol di atas tidak berfungsi, Anda juga dapat menyalin dan menempelkan link berikut ke browser Anda:</p>
+            
+            <p style="margin-top: 0; margin-bottom: 15px; background-color: #eeeeee; padding: 10px; border-radius: 4px; word-break: break-all; font-size: 14px;">
+              http://localhost:5137/changePassword
+            </p>
+          </div>
+          
+          <div style="text-align: center; padding-top: 20px; border-top: 1px solid #e0e0e0; color: #777777; font-size: 14px;">
+            <p style="margin-top: 0; margin-bottom: 10px;">Email ini dikirim otomatis, mohon jangan balas.</p>
+            <p style="margin-top: 0; margin-bottom: 10px;">&copy; ${new Date().getFullYear()} SIXSTREET. All rights reserved.</p>
+          </div>
+        </div>
+      `,
     };
 
     try {
       await transporter.sendMail(mailOptions);
       console.log('Email sent successfully');
+      // Menambahkan status 200 dan pesan sukses
+      return res.status(200).json({ message: 'Email reset password berhasil dikirim' });
     } catch (emailError) {
       console.error('Error sending email:', emailError);
       return res.status(500).json({ message: 'User created, but email not sent', error: emailError.message });
