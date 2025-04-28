@@ -423,7 +423,7 @@ export const forgotPassword = async (req, res) => {
             <p style="margin-top: 0; margin-bottom: 15px; font-size: 16px; line-height: 1.5;">Untuk melanjutkan, silakan klik tombol di bawah ini:</p>
             
             <div style="text-align: center; margin: 30px 0;">
-              <a href="http://localhost:5137/changePassword" style="display: inline-block; padding: 12px 24px; background-color: #333333; color: #ffffff; text-decoration: none; font-weight: bold; border-radius: 4px; font-size: 16px;">Reset Password</a>
+              <a href="https://six6street.co.id/change-password" style="display: inline-block; padding: 12px 24px; background-color: #333333; color: #ffffff; text-decoration: none; font-weight: bold; border-radius: 4px; font-size: 16px;">Reset Password</a>
             </div>
             
             <p style="margin-top: 0; margin-bottom: 15px; font-size: 16px; line-height: 1.5;">Jika Anda tidak meminta reset password, Anda dapat mengabaikan email ini dan tidak ada perubahan yang akan dibuat pada akun Anda.</p>
@@ -431,7 +431,7 @@ export const forgotPassword = async (req, res) => {
             <p style="margin-top: 0; margin-bottom: 15px; font-size: 16px; line-height: 1.5;">Jika tombol di atas tidak berfungsi, Anda juga dapat menyalin dan menempelkan link berikut ke browser Anda:</p>
             
             <p style="margin-top: 0; margin-bottom: 15px; background-color: #eeeeee; padding: 10px; border-radius: 4px; word-break: break-all; font-size: 14px;">
-              http://localhost:5137/changePassword
+              https://six6street.co.id/change-password
             </p>
           </div>
           
