@@ -124,38 +124,50 @@ export const createTransaction = async (req, res) => {
 // Update Transaction by user_id and uuid
 export const updateTransactionByUuid = async (req, res) => {
   const { user_id, transaction_uuid } = req.params;
-  const { name, city, sub_district, detail_address, expedition, expedition_services, etd, resi, product_id, quantity, product_price, product_name, product_size, total, status } = req.body;
+  const { name, city, sub_district, detail_address, expedition, expedition_services, etd, resi, status } = req.body;
 
-  if (!user_id || !transaction_uuid || !name || !city || !sub_district || !detail_address || !expedition || !expedition_services || !etd || !product_id || !quantity || !product_price || !product_name || !product_size || !total || !status) {
-    return res.status(400).json({ message: 'All fields are required' });
+  // Validasi field yang wajib diisi
+  if (!user_id || !transaction_uuid) {
+    return res.status(400).json({ message: 'User ID and Transaction UUID are required' });
+  }
+
+  if (!name || !status) {
+    return res.status(400).json({ message: 'Name and status are required fields' });
   }
 
   try {
-    const transaction = await Transaction.update(
-      {
-        name,
-        city,
-        sub_district,
-        detail_address,
-        expedition,
-        expedition_services,
-        etd,
-        resi,
-        product_id,
-        quantity,
-        product_price,
-        product_name,
-        product_size,
-        total,
-        status,
-      },
-      {
-        where: { user_id, transaction_uuid },
-      }
-    );
+    const updateData = {};
 
-    res.json({ message: 'Transaction updated successfully' });
+    if (name) updateData.name = name;
+    if (city) updateData.city = city;
+    if (sub_district) updateData.sub_district = sub_district;
+    if (detail_address) updateData.detail_address = detail_address;
+    if (expedition) updateData.expedition = expedition;
+    if (expedition_services) updateData.expedition_services = expedition_services;
+    if (etd) updateData.etd = etd;
+    if (resi !== undefined) updateData.resi = resi;
+    if (status) updateData.status = status;
+
+    // Update transaction
+    const [updatedRowsCount] = await Transaction.update(updateData, {
+      where: { user_id, transaction_uuid },
+    });
+
+    if (updatedRowsCount === 0) {
+      return res.status(404).json({ message: 'Transaction not found' });
+    }
+
+    // Fetch updated transaction untuk return data terbaru
+    const updatedTransaction = await Transaction.findAll({
+      where: { user_id, transaction_uuid },
+    });
+
+    res.json({
+      message: 'Transaction updated successfully',
+      data: updatedTransaction,
+    });
   } catch (error) {
+    console.error('Error updating transaction:', error);
     res.status(500).json({
       message: 'Error updating transaction',
       error: error.message,

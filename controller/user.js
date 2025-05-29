@@ -29,6 +29,7 @@ const generateOTP = (length) => {
   return result;
 };
 
+// Function createUserVouchers - Updated voucher expiration
 const createUserVouchers = async (userId) => {
   // Misalnya ada diskon yang diterapkan pada produk tertentu
   const discountableProducts = {
@@ -50,7 +51,8 @@ const createUserVouchers = async (userId) => {
     const products = discountableProducts[category];
     for (let i = 0; i < products.length; i++) {
       const voucherCode = `VOUCHER-${category.toUpperCase()}-${i + 1}`;
-      const validUntil = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Kadaluarsa 30 hari
+      // FIXED: Set voucher to expire on December 31, 2025
+      const validUntil = new Date('2025-12-31T23:59:59.999Z');
 
       // Membuat voucher
       const voucher = await Voucher.create({
@@ -66,7 +68,7 @@ const createUserVouchers = async (userId) => {
     }
   }
 
-  return vouchers; // Pastikan untuk mengembalikan array vouchers
+  return vouchers;
 };
 
 //function get semua data user
@@ -287,7 +289,8 @@ export const verifyOTP = async (req, res) => {
       const discountPercentage = discountPercentages[i % discountPercentages.length];
       const voucherCode = `VOUCHER-${category.toUpperCase()}-${i + 1}-${id}`;
 
-      const validUntil = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Kadaluarsa 30 hari
+      // FIXED: Set voucher to expire on December 31, 2025
+      const validUntil = new Date('2025-12-31T23:59:59.999Z');
 
       const voucher = await Voucher.create({
         user_id: id,
