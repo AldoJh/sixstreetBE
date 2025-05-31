@@ -323,9 +323,11 @@ export const detail = async (req, res) => {
         id: userId,
       },
     });
+
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
+
     const address = await Address.findOne({
       where: {
         user_id: user.id,
@@ -333,19 +335,27 @@ export const detail = async (req, res) => {
     });
 
     const response = {
-      message: {
+      message: 'User detail retrieved successfully',
+      data: {
         id: user.id,
         fullName: user.fullName,
         no_hp: user.no_hp,
         email: user.email,
         birthday: user.birthday,
+        kode_user: user.kode_user,
+        referd_kode: user.referd_kode,
+        role: user.role,
+        membership: user.membership,
         address: address ? address.address : null,
-        profile_foto: user.profile_foto,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
       },
     };
+
     res.status(200).json(response);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error getting user detail:', error);
+    res.status(500).json({ message: 'Get user detail failed', error: error.message });
   }
 };
 
@@ -358,17 +368,62 @@ export const update = async (req, res) => {
         id: userId,
       },
     });
+
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const { fullName, no_hp, email, birthday, profile_foto } = req.body;
+    const { fullName, no_hp, email, birthday, kode_user, referd_kode, role, membership } = req.body;
+
+    // Validasi jika fullName diubah, pastikan tidak duplikat dengan user lain
+    if (fullName && fullName !== user.fullName) {
+      const existingUserWithFullName = await User.findOne({
+        where: {
+          fullName,
+          id: { [Op.ne]: userId }, // Exclude current user
+        },
+      });
+      if (existingUserWithFullName) {
+        return res.status(400).json({ message: 'FullName already exists' });
+      }
+    }
+
+    // Validasi jika no_hp diubah, pastikan tidak duplikat dengan user lain
+    if (no_hp && no_hp !== user.no_hp) {
+      const existingUserWithNoHp = await User.findOne({
+        where: {
+          no_hp,
+          id: { [Op.ne]: userId }, // Exclude current user
+        },
+      });
+      if (existingUserWithNoHp) {
+        return res.status(400).json({ message: 'No Handphone already exists' });
+      }
+    }
+
+    // Validasi jika email diubah, pastikan tidak duplikat dengan user lain
+    if (email && email !== user.email) {
+      const existingUserWithEmail = await User.findOne({
+        where: {
+          email,
+          id: { [Op.ne]: userId }, // Exclude current user
+        },
+      });
+      if (existingUserWithEmail) {
+        return res.status(400).json({ message: 'Email already exists' });
+      }
+    }
+
+    // Update user dengan field yang sesuai register
     await user.update({
-      fullName,
-      no_hp,
-      email,
-      birthday,
-      profile_foto,
+      fullName: fullName || user.fullName,
+      no_hp: no_hp || user.no_hp,
+      email: email || user.email,
+      birthday: birthday || user.birthday,
+      kode_user: kode_user || user.kode_user,
+      referd_kode: referd_kode || user.referd_kode,
+      role: role !== undefined ? role : user.role,
+      membership: membership !== undefined ? membership : user.membership,
     });
 
     const updatedUser = await User.findOne({
@@ -378,19 +433,26 @@ export const update = async (req, res) => {
     });
 
     const response = {
-      message: {
+      message: 'User updated successfully',
+      data: {
         id: updatedUser.id,
         fullName: updatedUser.fullName,
         no_hp: updatedUser.no_hp,
         email: updatedUser.email,
         birthday: updatedUser.birthday,
-        profile_foto: updatedUser.profile_foto,
+        kode_user: updatedUser.kode_user,
+        referd_kode: updatedUser.referd_kode,
+        role: updatedUser.role,
+        membership: updatedUser.membership,
+        createdAt: updatedUser.createdAt,
+        updatedAt: updatedUser.updatedAt,
       },
     };
 
     res.status(200).json(response);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error updating user:', error);
+    res.status(500).json({ message: 'Update user failed', error: error.message });
   }
 };
 
