@@ -29,6 +29,7 @@
     "otp-generator": "^4.0.1",
     "path": "^0.12.7",
     "sequelize": "^6.37.3",
+    "sharp": "^0.34.2",
     "uuid": "^10.0.0"
   },
   "description": ""
